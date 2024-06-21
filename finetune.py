@@ -135,7 +135,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     Make dataset and collator for supervised fine-tuning.
     Datasets are expected to have the following columns: { `input`, `output` }
     """
-    temp_dataset_file = "temp_dataset/librispeech_asr_360"
+    temp_dataset_file = args.dataset+"-final"
 
     def format_dataset(dataset):
         def map_to_array(batch):
@@ -148,33 +148,34 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         dataset = dataset.map(
             map_to_array,
             num_proc=8,
-            remove_columns=["file", "speaker_id", "chapter_id", "id", "audio"],
+            remove_columns=["file", "sentence", "validate", "audio"],
         )
 
         print(f"dataset after mapping: {dataset}")
 
-        def check_duration(sample):
-            # 音频的采样率为16kHz
-            sample_rate = 16000
-            # 计算音频的长度（秒）
-            duration = len(sample["speech"]) / sample_rate
-            # 如果音频的长度大于15秒，返回False
-            if duration > 15:
-                return False
-            # 否则，返回True
-            return True
+        # def check_duration(sample):
+        #     # 音频的采样率为16kHz
+        #     sample_rate = 16000
+        #     # 计算音频的长度（秒）
+        #     duration = len(sample["speech"]) / sample_rate
+        #     # 如果音频的长度大于15秒，返回False
+        #     if duration > 15:
+        #         return False
+        #     # 否则，返回True
+        #     return True
 
-        dataset = dataset.filter(check_duration, num_proc=10)
+        # dataset = dataset.filter(check_duration, num_proc=10)
         dataset.save_to_disk(temp_dataset_file)
 
         return dataset
 
-    if args.dataset == "librispeech_asr":
-        TRAIN_TAG = "train.360"
-    elif args.dataset == "hf-internal-testing/librispeech_asr_dummy":
-        TRAIN_TAG = "validation"
-    else:
-        TRAIN_TAG = "train"
+    # if args.dataset == "librispeech_asr":
+    #     TRAIN_TAG = "train.360"
+    # elif args.dataset == "hf-internal-testing/librispeech_asr_dummy":
+    #     TRAIN_TAG = "validation"
+    # else:
+    #     TRAIN_TAG = "train"
+    TRAIN_TAG = "train"
     # Load dataset.
 
     from datasets import DatasetDict
@@ -183,15 +184,15 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         print("load directly")
         dataset = load_dataset(temp_dataset_file)
     else:
-
-        dataset = load_dataset(args.dataset, args.split, trust_remote_code=True)
-        dataset = DatasetDict(
-            {
-                "train": dataset[TRAIN_TAG],
-                "validation": dataset["validation"],
-                "test": dataset["test"],
-            }
-        )
+        print("load original disk")
+        dataset = load_from_disk(args.dataset)
+        # dataset = DatasetDict(
+        #     {
+        #         "train": dataset[TRAIN_TAG],
+        #         "validation": dataset["validation"],
+        #         "test": dataset["test"],
+        #     }
+        # )
         dataset = format_dataset(dataset)
     # rename TRAIN_TAG to "train"
     # dataset["train"] = dataset.pop(TRAIN_TAG)
