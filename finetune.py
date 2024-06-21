@@ -172,7 +172,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         #     return True
 
         # dataset = dataset.filter(check_duration, num_proc=10)
-        dataset.save_to_disk(temp_dataset_file)
+        # dataset.save_to_disk(temp_dataset_file)
 
         return dataset
 
@@ -189,7 +189,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
     if os.path.exists(temp_dataset_file):
         print("load directly")
-        dataset = load_from_disk(temp_dataset_file)
+        train_dataset = load_from_disk(temp_dataset_file)
     else:
         print("load original data")
         dataset = load_from_disk(args.dataset)
@@ -212,41 +212,41 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     # )
 
     # Split train/eval, reduce size
-    if args.do_eval or args.do_predict:
-        if "validation" in dataset:
-            eval_dataset = dataset["validation"]
-        else:
-            eval_dataset = dataset["test"]
-        if (
-            args.max_eval_samples is not None
-            and len(eval_dataset) > args.max_eval_samples
-        ):
-            eval_dataset = eval_dataset.select(range(args.max_eval_samples))
-        if args.group_by_length:
-            eval_bylength = "temp_datasets/eval_bylength"
-            if os.path.exists(eval_bylength):
-                eval_dataset = load_from_disk(eval_bylength)
+        if args.do_eval or args.do_predict:
+            if "validation" in dataset:
+                eval_dataset = dataset["validation"]
             else:
-                eval_dataset = eval_dataset.map(
-                    lambda x: {"length": len(x["translation"])}, num_proc=8
-                )
-                eval_dataset.save_to_disk(eval_bylength)
-    if args.do_train:
-        train_dataset = dataset["train"]
-        if (
-            args.max_train_samples is not None
-            and len(train_dataset) > args.max_train_samples
-        ):
-            train_dataset = train_dataset.select(range(args.max_train_samples))
-        if args.group_by_length:
-            train_bylength = "temp_datasets/train_bylength"
-            if os.path.exists(train_bylength):
-                train_dataset = load_from_disk(train_bylength)
-            else:
-                train_dataset = train_dataset.map(
-                    lambda x: {"length": len(x["translation"])}, num_proc=8
-                )
-                train_dataset.save_to_disk(train_bylength)
+                eval_dataset = dataset["test"]
+            if (
+                args.max_eval_samples is not None
+                and len(eval_dataset) > args.max_eval_samples
+            ):
+                eval_dataset = eval_dataset.select(range(args.max_eval_samples))
+            if args.group_by_length:
+                eval_bylength = "temp_datasets/eval_bylength"
+                if os.path.exists(eval_bylength):
+                    eval_dataset = load_from_disk(eval_bylength)
+                else:
+                    eval_dataset = eval_dataset.map(
+                        lambda x: {"length": len(x["translation"])}, num_proc=8
+                    )
+                    eval_dataset.save_to_disk(eval_bylength)
+        if args.do_train:
+            train_dataset = dataset["train"]
+            if (
+                args.max_train_samples is not None
+                and len(train_dataset) > args.max_train_samples
+            ):
+                train_dataset = train_dataset.select(range(args.max_train_samples))
+            if args.group_by_length:
+                train_bylength = "temp_datasets/train_bylength"
+                if os.path.exists(train_bylength):
+                    train_dataset = load_from_disk(train_bylength)
+                else:
+                    train_dataset = train_dataset.map(
+                        lambda x: {"length": len(x["translation"])}, num_proc=8
+                    )
+                    train_dataset.save_to_disk(temp_dataset_file)
 
     data_collator = DataCollatorForSlamASR(
         source_max_len=args.source_max_len,
@@ -255,10 +255,16 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         predict_with_generate=args.predict_with_generate,
     )
 
+    # return dict(
+    #     train_dataset=train_dataset if args.do_train else None,
+    #     eval_dataset=eval_dataset if args.do_eval else None,
+    #     predict_dataset=eval_dataset if args.do_predict else None,
+    #     data_collator=data_collator,
+    # )
     return dict(
         train_dataset=train_dataset if args.do_train else None,
-        eval_dataset=eval_dataset if args.do_eval else None,
-        predict_dataset=eval_dataset if args.do_predict else None,
+        eval_dataset=None,
+        predict_dataset=None,
         data_collator=data_collator,
     )
 
