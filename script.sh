@@ -1,5 +1,5 @@
 CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precision fp16 finetune.py \
-    --dataset librispeech_asr \
+    --dataset temp_dataset/covost_en2zh-CN-tiny \
     --split clean \
     --output_dir ./output/slam_asr_lr_1e-4 \
     --logging_steps 10 \

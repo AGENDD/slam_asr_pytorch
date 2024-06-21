@@ -62,7 +62,7 @@ class SLAM_ASR(nn.Module):
 
         self.prompt_part1 = """<|im_start|>user\n"""
         self.prompt_part2 = (
-            """, transcribe the audio to text<|im_end|>\n<|im_start|>assistant\n"""
+            """<|im_end|>\n<|im_start|>assistant\n"""
         )
         self.embed_bank = {"embed1": None, "embed2": None, "att1": None, "att2": None}
         self.set_embed_bank()
@@ -113,7 +113,7 @@ class SLAM_ASR(nn.Module):
                 print(f"    {name}: {param.shape}")
 
     def _prepare_input_embeds(
-        self, audios: List[float], transcriptions: List[str] = None
+        self, audios: List[float],prompts:List[str], transcriptions: List[str] = None
     ):
         """
         First, run audios through speech_encoder to get the embeddings and mask
@@ -127,8 +127,20 @@ class SLAM_ASR(nn.Module):
         att2 = self.embed_bank["att2"].repeat(batch_size, 1)
 
         true_labels = None
-
-        prompt_length = embed1.shape[1] + speech_output.shape[1] + embed2.shape[1]
+        
+        ##################################
+        pr_output = self.language_tokenizer(
+            [prompts], return_tensors="pt", add_special_tokens=False
+        ).to(self.device)
+        with torch.no_grad():
+            pr_output = self.language_model.model.embed_tokens(
+                pr_output.input_ids
+            )
+        att_pr = pr_output.attention_mask
+        
+        ##################################
+        
+        prompt_length = embed1.shape[1] + speech_output.shape[1] + pr_output.shape[1]+ embed2.shape[1]
         if transcriptions is not None:
             _labels = self.language_tokenizer(
                 transcriptions,
@@ -140,9 +152,9 @@ class SLAM_ASR(nn.Module):
             labels_embeds = self.language_model.model.embed_tokens(_labels.input_ids)
             att3 = _labels.attention_mask
             prompt_embed = torch.cat(
-                [embed1, speech_output, embed2, labels_embeds], dim=1
+                [embed1, speech_output,pr_output, embed2, labels_embeds], dim=1
             )  # (b, 4+audio+11+seq_len, 2048)
-            prompt_mask = torch.cat([att1, mask, att2, att3], dim=1)
+            prompt_mask = torch.cat([att1, mask,att_pr, att2, att3], dim=1)
 
             true_labels = _labels.input_ids
             # attach "prompt_length" * -100 to the start of the true_labels
@@ -160,15 +172,15 @@ class SLAM_ASR(nn.Module):
             )
         else:
             prompt_embed = torch.cat(
-                [embed1, speech_output, embed2], dim=1
+                [embed1, speech_output,pr_output, embed2], dim=1
             )  # (b, 4+audio+11, 2048)
-            prompt_mask = torch.cat([att1, mask, att2], dim=1)
+            prompt_mask = torch.cat([att1, mask,att_pr, att2], dim=1)
             true_labels = None
         return prompt_embed, prompt_mask, true_labels
 
-    def forward(self, audios: List[float], transcriptions: List[str] = None):
+    def forward(self, audios: List[float],prompts:List[str], transcriptions: List[str] = None):
         prompt_embed, prompt_mask, true_labels = self._prepare_input_embeds(
-            audios, transcriptions
+            audios, prompts, transcriptions
         )
         # run the prompt through the language model
 

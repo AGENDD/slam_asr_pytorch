@@ -190,7 +190,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         print("load directly")
         dataset = load_dataset(temp_dataset_file)
     else:
-        print("load original disk")
+        print("load original data")
         dataset = load_from_disk(args.dataset)
         # dataset = DatasetDict(
         #     {
