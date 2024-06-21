@@ -15,7 +15,7 @@ class DataCollatorForSlamASR(object):
         # x = ds["speech"][0:3]
         # y = ds["text"][0:3]
 
-        x = [np.array(i["speech"]) for i in instances]
+        x = [np.array(i["speech"]).flatten() for i in instances]
         y = [i["translation"].lower() for i in instances]
         z = [i["prompt"].lower() for i in instances]
         return {"audios": x, "prompts": z, "transcriptions": y}
