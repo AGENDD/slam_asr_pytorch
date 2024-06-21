@@ -130,7 +130,7 @@ class SLAM_ASR(nn.Module):
         
         ##################################
         pr_output = self.language_tokenizer(
-            [prompts], return_tensors="pt", add_special_tokens=False
+            prompts, return_tensors="pt", add_special_tokens=False
         ).to(self.device)
         att_pr = pr_output.attention_mask
         with torch.no_grad():
