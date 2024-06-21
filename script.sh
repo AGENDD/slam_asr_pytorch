@@ -1,5 +1,5 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precision fp16 finetune.py \
-    --dataset temp_dataset/covost_en2zh-CN-tiny \
+CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 1 --mixed_precision fp16 finetune.py \
+    --dataset temp_datasets/covost_en2zh-CN-tiny \
     --split clean \
     --output_dir ./output/covost_slam_asr \
     --logging_steps 10 \

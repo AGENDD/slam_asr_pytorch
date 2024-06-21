@@ -223,12 +223,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         ):
             eval_dataset = eval_dataset.select(range(args.max_eval_samples))
         if args.group_by_length:
-            eval_bylength = "temp_dataset/eval_bylength"
+            eval_bylength = "temp_datasets/eval_bylength"
             if os.path.exists(eval_bylength):
                 eval_dataset = load_from_disk(eval_bylength)
             else:
                 eval_dataset = eval_dataset.map(
-                    lambda x: {"length": len(x["text"])}, num_proc=8
+                    lambda x: {"length": len(x["translation"])}, num_proc=8
                 )
                 eval_dataset.save_to_disk(eval_bylength)
     if args.do_train:
@@ -239,12 +239,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         ):
             train_dataset = train_dataset.select(range(args.max_train_samples))
         if args.group_by_length:
-            train_bylength = "temp_dataset/train_bylength"
+            train_bylength = "temp_datasets/train_bylength"
             if os.path.exists(train_bylength):
                 train_dataset = load_from_disk(train_bylength)
             else:
                 train_dataset = train_dataset.map(
-                    lambda x: {"length": len(x["text"])}, num_proc=8
+                    lambda x: {"length": len(x["translation"])}, num_proc=8
                 )
                 train_dataset.save_to_disk(train_bylength)
 
