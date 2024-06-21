@@ -63,8 +63,9 @@ def get_accelerate_model(args, checkpoint_dir):
         train_mode="adapter",
     )
     # weights = torch.load(f"{checkpoint_dir}/model.safetensors")
-    weights = load_file(f"{checkpoint_dir}/model.safetensors")
-    model.load_state_dict(weights)
+    if(checkpoint_dir != None):
+        weights = load_file(f"{checkpoint_dir}/model.safetensors")
+        model.load_state_dict(weights)
 
 
     # Tokenizer
