@@ -150,6 +150,13 @@ class SLAM_ASR(nn.Module):
             ).to(self.device)
             labels_embeds = self.language_model.model.embed_tokens(_labels.input_ids)
             att3 = _labels.attention_mask
+            
+            print(embed1.shape)
+            print(speech_output.shape)
+            print(pr_output.shape)
+            print(embed2.shape)
+            print(labels_embeds.shape)
+
             prompt_embed = torch.cat(
                 [embed1, speech_output,pr_output, embed2, labels_embeds], dim=1
             )  # (b, 4+audio+11+seq_len, 2048)

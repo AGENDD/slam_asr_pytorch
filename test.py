@@ -20,3 +20,17 @@ print(np.array(dataset["train"][1]["audio"]['array']).shape)
 print(np.array(dataset["train"][2]["audio"]['array']).shape)
 print(np.array(dataset["train"][3]["audio"]['array']).shape)
 print(np.array(dataset["train"][4]["audio"]['array']).shape)
+
+
+
+from datasets import load_dataset
+dataset = load_dataset("librispeech_asr")
+
+dataset = DatasetDict(
+    {
+        "train": dataset["train.360"],
+        "validation": dataset["validation"],
+        "test": dataset["test"],
+    }
+)
+
