@@ -132,12 +132,11 @@ class SLAM_ASR(nn.Module):
         pr_output = self.language_tokenizer(
             [prompts], return_tensors="pt", add_special_tokens=False
         ).to(self.device)
+        att_pr = pr_output.attention_mask
         with torch.no_grad():
             pr_output = self.language_model.model.embed_tokens(
                 pr_output.input_ids
             )
-        att_pr = pr_output.attention_mask
-        
         ##################################
         
         prompt_length = embed1.shape[1] + speech_output.shape[1] + pr_output.shape[1]+ embed2.shape[1]
