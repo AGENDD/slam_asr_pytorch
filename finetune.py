@@ -30,7 +30,8 @@ from modeling.data_collator import DataCollatorForSlamASR
 from modeling.asr import SLAM_ASR
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 from datasets import load_from_disk
-from safetensors.torch import load_filefrom datasets import load_from_disk
+from safetensors.torch import load_file
+from datasets import load_from_disk
 from transformers import AutoModel
 
 
