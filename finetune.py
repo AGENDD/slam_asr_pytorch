@@ -189,7 +189,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
     if os.path.exists(temp_dataset_file):
         print("load directly")
-        dataset = load_dataset(temp_dataset_file)
+        dataset = load_from_disk(temp_dataset_file)
     else:
         print("load original data")
         dataset = load_from_disk(args.dataset)
