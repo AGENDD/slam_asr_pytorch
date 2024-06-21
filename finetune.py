@@ -30,7 +30,9 @@ from modeling.data_collator import DataCollatorForSlamASR
 from modeling.asr import SLAM_ASR
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 from datasets import load_from_disk
-from safetensors.torch import load_file
+from safetensors.torch import load_filefrom datasets import load_from_disk
+from transformers import AutoModel
+
 
 if torch.cuda.is_available():
     torch.backends.cuda.matmul.allow_tf32 = True
@@ -40,7 +42,7 @@ logger = logging.getLogger(__name__)
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 
-
+#加载模型，tokenizer
 # 加载模型，tokenizer
 def get_accelerate_model(args, checkpoint_dir):
 
@@ -52,14 +54,17 @@ def get_accelerate_model(args, checkpoint_dir):
         device_map = {"": local_rank}
 
     # print(f"loading base model {args.model_name_or_path}...")
+    
+
     model = SLAM_ASR(
-        "facebook/hubert-base-ls960",
-        "TinyLlama/TinyLlama-1.1B-Chat-v0.4",
+        speech_encoder_model_id="facebook/hubert-base-ls960",
+        language_model_id="TinyLlama/TinyLlama-1.1B-Chat-v0.4",
         train_mode="adapter",
     )
     # weights = torch.load(f"{checkpoint_dir}/model.safetensors")
     weights = load_file(f"{checkpoint_dir}/model.safetensors")
     model.load_state_dict(weights)
+
 
     # Tokenizer
     tokenizer = model.language_tokenizer
