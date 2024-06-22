@@ -24,7 +24,7 @@ def map_to_array(batch):
 ds = load_from_disk(
     "temp_datasets/covost_zh-CN2en"
 )
-ds = ds['test']
+ds = ds['test'].select(range(100))
 ds = ds.map(map_to_array)
 
 for i in range(len(ds)):
