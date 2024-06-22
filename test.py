@@ -14,14 +14,13 @@
 from datasets import load_from_disk
 from datasets import DatasetDict
 import numpy as np
-dataset = load_from_disk("covost_en2zh-CN-tiny")
-print(np.array(dataset["train"][0]["audio"]['array']).shape)
-print(np.array(dataset["train"][1]["audio"]['array']).shape)
-print(np.array(dataset["train"][2]["audio"]['array']).shape)
-print(np.array(dataset["train"][3]["audio"]['array']).shape)
-print(np.array(dataset["train"][4]["audio"]['array']).shape)
+dataset = load_from_disk("covost_zh-CN2en-final")
 
-
+print(dataset)
+for i in range(10):
+    print(dataset[i]['translation'])
+    print(dataset[i]['prompt'])
+    print(dataset[i]['speech'][:20])
 
 from datasets import load_dataset
 dataset = load_dataset("librispeech_asr")
@@ -33,4 +32,6 @@ dataset = DatasetDict(
         "test": dataset["test"],
     }
 )
+
+
 
