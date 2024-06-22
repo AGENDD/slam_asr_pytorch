@@ -1,7 +1,7 @@
 CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precision fp16 finetune.py \
-    --dataset temp_datasets/covost_en2zh-CN \
+    --dataset temp_datasets/covost_zh-CN2en \
     --split clean \
-    --output_dir ./output/covost_slam_asr \
+    --output_dir ./output/covost_slam_asr_ch2en \
     --logging_steps 10 \
     --save_strategy epoch \
     --data_seed 42 \
