@@ -197,11 +197,11 @@ class SLAM_ASR(nn.Module):
         )  # CausalLMOutputWithPast
         return outputs
 
-    def generate(self, audios: List[str], stopping_criteria=None):
+    def generate(self, audios: List[str],prompts:List[str], stopping_criteria=None):
         """
         Generate the transcription
         """
-        prompt_embed, prompt_mask, _ = self._prepare_input_embeds(audios)
+        prompt_embed, prompt_mask, _ = self._prepare_input_embeds(audios,prompts)
         outputs = self.language_model.generate(
             inputs_embeds=prompt_embed,
             attention_mask=prompt_mask,

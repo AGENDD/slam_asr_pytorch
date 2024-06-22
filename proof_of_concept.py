@@ -3,7 +3,7 @@ import soundfile as sf
 import torch
 from modeling.asr import SLAM_ASR
 from safetensors.torch import load_file
-
+from datasets import load_from_disk
 
 asr = SLAM_ASR(
     "facebook/hubert-base-ls960",
@@ -11,29 +11,28 @@ asr = SLAM_ASR(
     train_mode="adapter",
 )
 # load the state_dict from output/adapter_weights.pt
-adapter_weight = load_file("output/checkpoint-1750/model.safetensors")
+adapter_weight = load_file("output/covost_slam_asr/checkpoint-46100/model.safetensors")
 asr.load_state_dict(adapter_weight, strict=False)
 
 
 def map_to_array(batch):
-    speech, _ = sf.read(batch["file"])
-    batch["speech"] = speech
+    
+    batch["speech"] = batch["audio"]['array'][0]
     return batch
 
 
-ds = load_dataset(
-    "hf-internal-testing/librispeech_asr_dummy",
-    "clean",
-    split="validation",
-    trust_remote_code=True,
+ds = load_from_disk(
+    "temp_datasets/covost_en2zh-CN-tiny"
 )
-ds = ds.map(map_to_array)
 
+ds = ds.map(map_to_array)
+ds = ds['test']
 for i in range(len(ds)):
-    x = ds["speech"][i]
-    y = ds["text"][i]
+    x = ds[i]["speech"]
+    y = ds[i]["translation"]
+    pr = ds[i]["prompt"]
     # asr(x)
-    output = asr.generate(x)  # causal of shape (b, seq_len, vocab_size)
+    output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
     print(f"Predicted: {asr.language_tokenizer.batch_decode(output)[0]}")
-    print(f"Reference: {y.lower()}")
+    print(f"Reference: {y}")
     print("\n\n")
