@@ -6,7 +6,7 @@ from safetensors.torch import load_file
 from datasets import load_from_disk
 
 asr = SLAM_ASR(
-    "facebook/hubert-base-ls960",
+    "facebook/hubert-large-ll60k",
     "TinyLlama/TinyLlama-1.1B-Chat-v0.4",
     train_mode="adapter",
 )
