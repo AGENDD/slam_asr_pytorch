@@ -9,7 +9,7 @@ class LoRALayer(nn.Module):
         self.B = nn.Parameter(torch.zeros(rank,out_dim))
         self.alpha = alpha
     def forward(self, x):
-        return x + self.alpha * (x @ self.A @ self.B)
+        return self.alpha * (x @ self.A @ self.B)
 
 class LinearWithLoRA(nn.Module):
     def __init__(self, linear,rank, alpha=0.01):
