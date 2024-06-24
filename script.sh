@@ -3,7 +3,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 1 --mixed_precisi
     --split clean \
     --output_dir ./output/covost_slam_asr_ch2en \
     --logging_steps 10 \
-    --save_strategy epoch \
+    --save_strategy steps \
+    --save_steps 100 \
     --data_seed 42 \
     --save_total_limit 3 \
     --eval_dataset_size 10 \
