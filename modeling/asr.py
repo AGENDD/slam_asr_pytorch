@@ -14,6 +14,8 @@ try:
     from .speech_encoder import SpeechEncoder
 except ImportError:
     from speech_encoder import SpeechEncoder
+    
+from .lora import LinearWithLoRA
 
 
 class SLAM_ASR(nn.Module):
@@ -47,6 +49,16 @@ class SLAM_ASR(nn.Module):
             language_model_id,
             trust_remote_code=True,
         ).to(self.device)
+        
+        ###
+        print("Model before lora:")
+        print(self.language_model)
+        self.load_lora(self.language_model)
+        print("Model after lora:")
+        print(self.language_model)
+        ###
+        
+        
         language_project_dim = self.language_model.config.hidden_size
 
         self.speech_encoder = SpeechEncoder(
@@ -70,6 +82,14 @@ class SLAM_ASR(nn.Module):
     def gradient_checkpointing_enable(self, **kwargs):
         self.language_model.gradient_checkpointing_enable(**kwargs)
 
+    def load_lora(self, model):
+        for name, child in model.named_children():
+            if isinstance(child, nn.Linear):
+                new_layer = LinearWithLoRA(child, 1)
+                setattr(model, name, new_layer)
+            else:
+                self.load_lora(child)
+    
     def set_embed_bank(self, batch_size=1):
         input_dict1 = self.language_tokenizer(
             [self.prompt_part1], return_tensors="pt"
@@ -103,8 +123,9 @@ class SLAM_ASR(nn.Module):
 
         # freeze the whole language_model
         if train_mode != "full":
-            for param in self.language_model.parameters():
-                param.requires_grad = False
+            for name, param in self.language_model.named_parameters():
+                if('lora' not in name):
+                    param.requires_grad = False
         # now list all parameters that require grad
         print("Parameters that require grad:")
 
