@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 from transformers import LlamaForCausalLM, LlamaTokenizer
 from typing import List
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 try:
     from .speech_encoder import SpeechEncoder
@@ -44,11 +45,14 @@ class SLAM_ASR(nn.Module):
 
         """
 
-        self.language_tokenizer = LlamaTokenizer.from_pretrained(language_model_id)
-        self.language_model = LlamaForCausalLM.from_pretrained(
-            language_model_id,
-            trust_remote_code=True,
-        ).to(self.device)
+        # self.language_tokenizer = LlamaTokenizer.from_pretrained(language_model_id)
+        # self.language_model = LlamaForCausalLM.from_pretrained(
+        #     language_model_id,
+        #     trust_remote_code=True,
+        # ).to(self.device)
+        
+        self.language_tokenizer = AutoTokenizer.from_pretrained("RWKV/rwkv-6-world-1b6", trust_remote_code=True, padding_side='left', pad_token="<s>")
+        self.language_model = AutoModelForCausalLM.from_pretrained("RWKV/rwkv-6-world-1b6", trust_remote_code=True).to(self.device)
         
         ###
         print("Model before lora:")
@@ -85,7 +89,7 @@ class SLAM_ASR(nn.Module):
     def load_lora(self, model):
         for name, child in model.named_children():
             if isinstance(child, nn.Linear):
-                new_layer = LinearWithLoRA(child, 32,self.device)
+                new_layer = LinearWithLoRA(child, 16,self.device)
                 setattr(model, name, new_layer)
             else:
                 self.load_lora(child)
