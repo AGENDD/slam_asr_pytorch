@@ -334,6 +334,9 @@ def train():
 
     # Verifying the datatypes and parameter counts before training.
     print_trainable_parameters(args, model)
+    
+    
+    return 0
     all_metrics = {"run_name": args.run_name}
     # Training
     if args.do_train:

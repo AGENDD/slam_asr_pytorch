@@ -50,7 +50,13 @@ class SLAM_ASR(nn.Module):
             trust_remote_code=True,
         ).to(self.device)
         
-
+        ###
+        # print("Model before lora:")
+        # print(self.language_model)
+        self.load_lora(self.language_model)
+        # print("Model after lora:")
+        # print(self.language_model)
+        ###
         
         
         language_project_dim = self.language_model.config.hidden_size
@@ -63,16 +69,20 @@ class SLAM_ASR(nn.Module):
             train_mode=train_mode,
             device=device,
         ).to(self.device)
+        
+        
+        print("show all params")
+        for name,param in self.named_parameters():
+            print(f"{name}:{param.requires_grad}")
+        print("show speech encode")
+        print(self.speech_encoder)
+        print("show language model")
+        print(self.language_model)
 
+        
         self.set_gradient(train_mode)
         
-        ###
-        print("Model before lora:")
-        print(self.language_model)
-        self.load_lora(self.language_model)
-        print("Model after lora:")
-        print(self.language_model)
-        ###
+
         
 
         self.prompt_part1 = """<|im_start|>user\n"""
