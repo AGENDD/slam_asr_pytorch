@@ -24,5 +24,6 @@ class LinearWithLoRA(nn.Module):
     def forward(self, x):
         return self.linear(x) + self.lora(x)
     def print_parameters(self):
+        print("show LinearWithLoRA parameters:")
         for name, param in self.named_parameters():
             print(name, param.size())
