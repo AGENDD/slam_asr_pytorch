@@ -49,16 +49,7 @@ class SLAM_ASR(nn.Module):
             language_model_id,
             trust_remote_code=True,
         ).to(self.device)
-        
-        ###
-        # print("Model before lora:")
-        # print(self.language_model)
-        self.load_lora(self.language_model)
-        # print("Model after lora:")
-        # print(self.language_model)
-        ###
-        
-        
+                
         language_project_dim = self.language_model.config.hidden_size
 
         self.speech_encoder = SpeechEncoder(
@@ -71,17 +62,22 @@ class SLAM_ASR(nn.Module):
         ).to(self.device)
         
         
-        print("show language params")
-        for name,param in self.language_model.named_parameters():
-            print(f"{name}:{param.requires_grad}")
-        print("show language model")
-        print(self.language_model)
+        # print("show language params")
+        # for name,param in self.language_model.named_parameters():
+        #     print(f"{name}:{param.requires_grad}")
+        # print("show language model")
+        # print(self.language_model)
 
-        return 0
-        
+
         self.set_gradient(train_mode)
         
-
+        ###
+        # print("Model before lora:")
+        # print(self.language_model)
+        self.load_lora(self.language_model)
+        # print("Model after lora:")
+        # print(self.language_model)
+        ###
         
 
         self.prompt_part1 = """<|im_start|>user\n"""
@@ -135,11 +131,14 @@ class SLAM_ASR(nn.Module):
 
         # freeze the whole language_model
         if train_mode != "full":
-            for name, param in self.language_model.named_parameters():
-                # print(f"layer:{name}")
+            # for name, param in self.language_model.named_parameters():
+            #     # print(f"layer:{name}")
                 
-                if('lora' not in name.lower()):
-                    param.requires_grad = False
+            #     if('lora' not in name.lower()):
+            #         param.requires_grad = False
+            
+            for param in self.language_model.parameters():
+                param.requires_grad = False
         # now list all parameters that require grad
         print("Parameters that require grad:")
 

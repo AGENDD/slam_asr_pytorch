@@ -15,9 +15,10 @@ class LinearWithLoRA(nn.Module):
     def __init__(self, linear,rank,device, alpha=0.01):
         super(LinearWithLoRA, self).__init__()
         self.linear = linear
+
+        self.lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
         for param in self.linear.parameters():
             param.requires_grad = False
-        self.lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
         for param in self.lora.parameters():
             param.requires_grad = True
     def forward(self, x):
