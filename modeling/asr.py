@@ -79,6 +79,7 @@ class SLAM_ASR(nn.Module):
         print("show language model")
         print(self.language_model)
 
+        return 0
         
         self.set_gradient(train_mode)
         
