@@ -71,11 +71,9 @@ class SLAM_ASR(nn.Module):
         ).to(self.device)
         
         
-        print("show all params")
-        for name,param in self.named_parameters():
+        print("show language params")
+        for name,param in self.language_model.named_parameters():
             print(f"{name}:{param.requires_grad}")
-        print("show speech encode")
-        print(self.speech_encoder)
         print("show language model")
         print(self.language_model)
 
