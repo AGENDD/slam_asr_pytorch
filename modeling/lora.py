@@ -16,7 +16,10 @@ class LinearWithLoRA(nn.Module):
         super(LinearWithLoRA, self).__init__()
         self.linear = linear
 
-        self.lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
+        lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
+        
+        self.add_module('lora', lora)
+        
         for param in self.linear.parameters():
             param.requires_grad = False
         for param in self.lora.parameters():
