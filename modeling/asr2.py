@@ -19,7 +19,7 @@ except ImportError:
 from .lora import LinearWithLoRA
 
 
-class SLAM_ASR(nn.Module):
+class SLAM_ASR2(nn.Module):
     def __init__(
         self,
         speech_encoder_model_id,
@@ -76,32 +76,18 @@ class SLAM_ASR(nn.Module):
 
         self.set_gradient(train_mode)
 
-        self.prompt_part1 = """<|im_start|>user\n"""
+        self.prompt_part1 = """User:"""
         self.prompt_part2 = (
-            """<|im_end|>\n<|im_start|>assistant\n"""
+            """\nAssistant:"""
         )
         self.embed_bank = {"embed1": None, "embed2": None, "att1": None, "att2": None}
-        # self.set_embed_bank()
+        self.set_embed_bank()
 
-    def generate_prompt(instruction, input=""):
-        instruction = instruction.strip().replace('\r\n', '\n').replace('\n\n', '\n')
-        input = input.strip().replace('\r\n', '\n').replace('\n\n', '\n')
+    # def generate_prompt(instruction, input=""):
+    #     instruction = instruction.strip().replace('\r\n', '\n').replace('\n\n', '\n')
+    #     input = input.strip().replace('\r\n', '\n').replace('\n\n', '\n')
         
-        return f"User:{instruction}\nAssistant:"
-        if input:
-            return f"""Instruction: {instruction}
-
-            Input: {input}
-
-            Response:"""
-        else:
-            return f"""User: hi
-
-    Assistant: Hi. I am your assistant and I will provide expert full response in full details. Please feel free to ask any question and I will always answer it.
-
-    User: {instruction}
-
-    Assistant:"""
+    #     return f"User:{instruction}\nAssistant:"
     
     
     def gradient_checkpointing_enable(self, **kwargs):
