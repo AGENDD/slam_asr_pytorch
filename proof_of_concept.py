@@ -4,6 +4,7 @@ import torch
 from modeling.asr import SLAM_ASR
 from safetensors.torch import load_file
 from datasets import load_from_disk
+torch.cuda.set_device(1)
 
 asr = SLAM_ASR(
     "facebook/hubert-large-ll60k",
