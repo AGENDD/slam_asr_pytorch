@@ -85,7 +85,7 @@ class SLAM_ASR(nn.Module):
     def load_lora(self, model):
         for name, child in model.named_children():
             if isinstance(child, nn.Linear):
-                new_layer = LinearWithLoRA(child, 128,self.device)
+                new_layer = LinearWithLoRA(child, 32,self.device)
                 setattr(model, name, new_layer)
             else:
                 self.load_lora(child)
