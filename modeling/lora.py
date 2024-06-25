@@ -9,10 +9,10 @@ class LoRALayer(nn.Module):
         self.B = nn.Parameter(torch.zeros(rank,out_dim))
         self.A = nn.Parameter(self.A.to(device))
         self.B = nn.Parameter(self.B.to(device))
-        print("A created, size:", self.A.size())
-        print("B created, size:", self.B.size())
+        # print("A created, size:", self.A.size())
+        # print("B created, size:", self.B.size())
         self.alpha = alpha
-        print("LoRALayer initialized, parameters:", list(self.parameters()))
+        # print("LoRALayer initialized, parameters:", list(self.parameters()))
     
     def forward(self, x):
         return self.alpha * (x @ self.A @ self.B)
@@ -28,7 +28,7 @@ class LinearWithLoRA(nn.Module):
         self.linear = linear
 
         lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
-        lora.print_parameters()
+        # lora.print_parameters()
         
         self.add_module('lora', lora)
         
