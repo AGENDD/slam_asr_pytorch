@@ -85,7 +85,7 @@ class SLAM_ASR(nn.Module):
     def load_lora(self, model):
         for name, child in model.named_children():
             if isinstance(child, nn.Linear):
-                new_layer = LinearWithLoRA(child, 64,self.device)
+                new_layer = LinearWithLoRA(child, 128,self.device)
                 setattr(model, name, new_layer)
             else:
                 self.load_lora(child)
@@ -124,7 +124,7 @@ class SLAM_ASR(nn.Module):
         # freeze the whole language_model
         if train_mode != "full":
             for name, param in self.language_model.named_parameters():
-                if('lora' not in name):
+                if('LoRA' not in name):
                     param.requires_grad = False
         # now list all parameters that require grad
         print("Parameters that require grad:")
