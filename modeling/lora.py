@@ -17,8 +17,8 @@ class LinearWithLoRA(nn.Module):
         self.linear = linear
         for param in self.linear.parameters():
             param.requires_grad = False
-            
         self.lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
-
+        for param in self.lora.parameters():
+            param.requires_grad = True
     def forward(self, x):
         return self.linear(x) + self.lora(x)

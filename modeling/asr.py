@@ -125,7 +125,8 @@ class SLAM_ASR(nn.Module):
         if train_mode != "full":
             for name, param in self.language_model.named_parameters():
                 print(f"layer:{name}")
-                if('LoRA' not in name):
+                
+                if('lora' not in name.lower()):
                     param.requires_grad = False
         # now list all parameters that require grad
         print("Parameters that require grad:")
