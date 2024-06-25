@@ -113,6 +113,8 @@ class SLAM_ASR(nn.Module):
             new_layer = LinearWithLoRA(child, 32, self.device)
             delattr(model, name)
             model.add_module(name, new_layer)
+        for param in model.parameters():
+            pass
     
     def set_embed_bank(self, batch_size=1):
         input_dict1 = self.language_tokenizer(
