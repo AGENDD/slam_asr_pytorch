@@ -10,6 +10,10 @@ class LoRALayer(nn.Module):
         self.alpha = alpha
     def forward(self, x):
         return self.alpha * (x @ self.A @ self.B)
+    def print_parameters(self):
+        print("show LoRALayer parameters:")
+        for name, param in self.named_parameters():
+            print(name, param.size())
 
 class LinearWithLoRA(nn.Module):
     def __init__(self, linear,rank,device, alpha=0.01):
@@ -17,6 +21,7 @@ class LinearWithLoRA(nn.Module):
         self.linear = linear
 
         lora = LoRALayer(linear.in_features, linear.out_features,rank,device, alpha)
+        lora.print_parameters()
         
         self.add_module('lora', lora)
         
