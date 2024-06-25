@@ -326,6 +326,7 @@ def train():
 
     # 4. 加载训练器
     trainer = Seq2SeqTrainer(
+        main_process_port=0,
         model=model,
         tokenizer=tokenizer,
         args=training_args,
