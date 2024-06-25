@@ -50,13 +50,7 @@ class SLAM_ASR(nn.Module):
             trust_remote_code=True,
         ).to(self.device)
         
-        ###
-        print("Model before lora:")
-        print(self.language_model)
-        self.load_lora(self.language_model)
-        print("Model after lora:")
-        print(self.language_model)
-        ###
+
         
         
         language_project_dim = self.language_model.config.hidden_size
@@ -71,6 +65,15 @@ class SLAM_ASR(nn.Module):
         ).to(self.device)
 
         self.set_gradient(train_mode)
+        
+        ###
+        print("Model before lora:")
+        print(self.language_model)
+        self.load_lora(self.language_model)
+        print("Model after lora:")
+        print(self.language_model)
+        ###
+        
 
         self.prompt_part1 = """<|im_start|>user\n"""
         self.prompt_part2 = (
@@ -124,7 +127,7 @@ class SLAM_ASR(nn.Module):
         # freeze the whole language_model
         if train_mode != "full":
             for name, param in self.language_model.named_parameters():
-                print(f"layer:{name}")
+                # print(f"layer:{name}")
                 
                 if('lora' not in name.lower()):
                     param.requires_grad = False
