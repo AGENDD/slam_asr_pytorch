@@ -111,6 +111,7 @@ class SLAM_ASR(nn.Module):
                 self.load_lora(child)
         for name, child in to_replace:
             new_layer = LinearWithLoRA(child, 32, self.device)
+            new_layer.print_parameters()
             delattr(model, name)
             model.add_module(name, new_layer)
         for param in model.parameters():

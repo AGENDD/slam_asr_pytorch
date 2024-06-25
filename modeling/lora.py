@@ -23,3 +23,6 @@ class LinearWithLoRA(nn.Module):
             param.requires_grad = True
     def forward(self, x):
         return self.linear(x) + self.lora(x)
+    def print_parameters(self):
+        for name, param in self.named_parameters():
+            print(name, param.size())
