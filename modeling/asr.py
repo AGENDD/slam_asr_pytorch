@@ -93,14 +93,26 @@ class SLAM_ASR(nn.Module):
     def gradient_checkpointing_enable(self, **kwargs):
         self.language_model.gradient_checkpointing_enable(**kwargs)
 
+    # def load_lora(self, model):
+    #     for name, child in model.named_children():
+    #         if isinstance(child, nn.Linear):
+    #             new_layer = LinearWithLoRA(child, 32,self.device)
+    #             delattr(model, name)
+    #             model.add_module(name, new_layer)
+    #         else:
+    #             self.load_lora(child)
+                
     def load_lora(self, model):
+        to_replace = []
         for name, child in model.named_children():
             if isinstance(child, nn.Linear):
-                new_layer = LinearWithLoRA(child, 32,self.device)
-                delattr(model, name)
-                model.add_module(name, new_layer)
+                to_replace.append((name, child))
             else:
                 self.load_lora(child)
+        for name, child in to_replace:
+            new_layer = LinearWithLoRA(child, 32, self.device)
+            delattr(model, name)
+            model.add_module(name, new_layer)
     
     def set_embed_bank(self, batch_size=1):
         input_dict1 = self.language_tokenizer(
