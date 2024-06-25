@@ -5,9 +5,10 @@ class LoRALayer(nn.Module):
     def __init__(self, in_dim, out_dim,rank,device, alpha=0.01):
         super(LoRALayer, self).__init__()
         std_dev = 1 / torch.sqrt(torch.tensor(rank).float())
-        self.A = nn.Parameter(torch.randn(in_dim, rank)* std_dev).to(device)
-        self.B = nn.Parameter(torch.zeros(rank,out_dim)).to(device)
-        
+        self.A = nn.Parameter(torch.randn(in_dim, rank)* std_dev)
+        self.B = nn.Parameter(torch.zeros(rank,out_dim))
+        self.A = nn.Parameter(self.A.to(device))
+        self.B = nn.Parameter(self.B.to(device))
         print("A created, size:", self.A.size())
         print("B created, size:", self.B.size())
         self.alpha = alpha
