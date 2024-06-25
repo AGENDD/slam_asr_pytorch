@@ -81,8 +81,29 @@ class SLAM_ASR(nn.Module):
             """<|im_end|>\n<|im_start|>assistant\n"""
         )
         self.embed_bank = {"embed1": None, "embed2": None, "att1": None, "att2": None}
-        self.set_embed_bank()
+        # self.set_embed_bank()
 
+    def generate_prompt(instruction, input=""):
+        instruction = instruction.strip().replace('\r\n', '\n').replace('\n\n', '\n')
+        input = input.strip().replace('\r\n', '\n').replace('\n\n', '\n')
+        
+        return f"User:{instruction}\nAssistant:"
+        if input:
+            return f"""Instruction: {instruction}
+
+            Input: {input}
+
+            Response:"""
+        else:
+            return f"""User: hi
+
+    Assistant: Hi. I am your assistant and I will provide expert full response in full details. Please feel free to ask any question and I will always answer it.
+
+    User: {instruction}
+
+    Assistant:"""
+    
+    
     def gradient_checkpointing_enable(self, **kwargs):
         self.language_model.gradient_checkpointing_enable(**kwargs)
 
