@@ -20,7 +20,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 1 --mixed_precisi
     --lr_scheduler_type linear \
     --source_max_len 16 \
     --target_max_len 512 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 1 \
     --max_steps 0 \
     --num_train_epochs 50 \
     --learning_rate 1e-4 \
@@ -30,4 +30,5 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 1 --mixed_precisi
     --seed 0 \
     --trust_remote_code \
     --report_to tensorboard \
+    --gradient_accumulation_steps 4 \
     --ddp_find_unused_parameters False \
