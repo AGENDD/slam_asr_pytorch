@@ -35,7 +35,7 @@ for i in range(len(ds)):
     pr = ds[i]["prompt"]
     # asr(x)
 
-    output = asr.generate(x, pr,max_length=200)  # causal of shape (b, seq_len, vocab_size)
+    output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
     print(f"Predicted: {asr.language_tokenizer.batch_decode(output)[0]}")
     print(f"Reference: {y}")
     print("\n\n")
