@@ -27,6 +27,7 @@ class SLAM_ASR(nn.Module):
         hidden_dim=2048,
         train_mode="adapter",
         device="cuda",
+        token = "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",
     ):
         assert train_mode in ["adapter", "full"]
         super(SLAM_ASR, self).__init__()
@@ -44,10 +45,11 @@ class SLAM_ASR(nn.Module):
 
         """
 
-        self.language_tokenizer = LlamaTokenizer.from_pretrained(language_model_id)
+        self.language_tokenizer = LlamaTokenizer.from_pretrained(language_model_id,token = token)
         self.language_model = LlamaForCausalLM.from_pretrained(
             language_model_id,
             trust_remote_code=True,
+            token = token
         ).to(self.device)
         self.language_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         self.language_model.resize_token_embeddings(len(self.language_tokenizer))
