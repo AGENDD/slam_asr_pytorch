@@ -7,12 +7,13 @@ from datasets import load_from_disk
 torch.cuda.set_device(1)
 
 asr = SLAM_ASR(
-    "facebook/hubert-large-ll60k",
-    "TinyLlama/TinyLlama-1.1B-Chat-v0.4",
+    speech_encoder_model_id ="facebook/hubert-base-ls960",
+        # language_model_id="TinyLlama/TinyLlama-1.1B-Chat-v0.4",
+    language_model_id="openlm-research/open_llama_3b",
     train_mode="adapter",
 )
 # load the state_dict from output/adapter_weights.pt
-adapter_weight = load_file("output/covost_slam_asr_ch2en/checkpoint-3200/model.safetensors")
+adapter_weight = load_file("output/covost_slam_asr_ch2en/checkpoint-2600/model.safetensors")
 asr.load_state_dict(adapter_weight, strict=False)
 
 
