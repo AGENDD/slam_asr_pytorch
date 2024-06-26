@@ -49,8 +49,8 @@ class SLAM_ASR(nn.Module):
             language_model_id,
             trust_remote_code=True,
         ).to(self.device)
-        # self.language_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-
+        self.language_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        self.language_model.resize_token_embeddings(len(self.language_tokenizer))
         
         ###
         # print("Model before lora:")
@@ -182,7 +182,7 @@ class SLAM_ASR(nn.Module):
         
         ##################################
         pr_output = self.language_tokenizer(
-            prompts, return_tensors="pt", add_special_tokens=False,#padding=True
+            prompts, return_tensors="pt", add_special_tokens=False,padding=True
         ).to(self.device)
         att_pr = pr_output.attention_mask
         with torch.no_grad():
@@ -196,7 +196,7 @@ class SLAM_ASR(nn.Module):
             _labels = self.language_tokenizer(
                 transcriptions,
                 return_tensors="pt",
-                #padding=True,
+                padding=True,
                 truncation=True,
                 add_special_tokens=False,
             ).to(self.device)
