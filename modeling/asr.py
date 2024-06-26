@@ -152,7 +152,7 @@ class SLAM_ASR(nn.Module):
         # freeze the whole language_model
         if train_mode != "full":
             for name, param in self.language_model.named_parameters():
-                print(f"layer:{name}")
+                # print(f"layer:{name}")
                 
                 if('lora' not in name.lower()):
                     param.requires_grad = False
