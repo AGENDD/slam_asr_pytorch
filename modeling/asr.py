@@ -53,11 +53,11 @@ class SLAM_ASR(nn.Module):
 
         
         ###
-        print("Model before lora:")
-        print(self.language_model)
-        self.load_lora(self.language_model)
-        print("Model after lora:")
-        print(self.language_model)
+        # print("Model before lora:")
+        # print(self.language_model)
+        # self.load_lora(self.language_model)
+        # print("Model after lora:")
+        # print(self.language_model)
         ###
                 
         language_project_dim = self.language_model.config.hidden_size
