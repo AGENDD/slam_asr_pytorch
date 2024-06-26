@@ -59,7 +59,8 @@ def get_accelerate_model(args, checkpoint_dir):
 
     model = SLAM_ASR(
         speech_encoder_model_id="facebook/hubert-large-ll60k",
-        language_model_id="TinyLlama/TinyLlama-1.1B-Chat-v0.4",
+        # language_model_id="TinyLlama/TinyLlama-1.1B-Chat-v0.4",
+        language_model_id="openlm-research/open_llama_3b",
         train_mode="adapter",
     )
     # weights = torch.load(f"{checkpoint_dir}/model.safetensors")
