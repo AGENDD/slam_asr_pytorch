@@ -258,6 +258,7 @@ class SLAM_ASR(nn.Module):
             inputs_embeds=prompt_embed,
             attention_mask=prompt_mask,
             stopping_criteria=stopping_criteria,
+            max_length = 200
         )
         return outputs
 
