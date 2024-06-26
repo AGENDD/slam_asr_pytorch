@@ -172,9 +172,8 @@ class SLAM_ASR(nn.Module):
         """
         First, run audios through speech_encoder to get the embeddings and mask
         """
-        self.speech_encoder.to(self.device)
+
         speech_output, mask = self.speech_encoder(audios)
-        self.speech_encoder.to("cpu")
         
         batch_size = speech_output.shape[0]
         # get the prompt embeddings
