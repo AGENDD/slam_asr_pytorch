@@ -12,7 +12,7 @@ asr = SLAM_ASR(
     train_mode="adapter",
 )
 # load the state_dict from output/adapter_weights.pt
-adapter_weight = load_file("output/covost_slam_asr_ch2en/checkpoint-3800/model.safetensors")
+adapter_weight = load_file("output/covost_slam_asr_ch2en/checkpoint-3200/model.safetensors")
 asr.load_state_dict(adapter_weight, strict=False)
 
 
