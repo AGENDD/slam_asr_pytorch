@@ -49,7 +49,8 @@ class SLAM_ASR(nn.Module):
             language_model_id,
             trust_remote_code=True,
         ).to(self.device)
-        
+        self.language_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
         
         ###
         print("Model before lora:")
