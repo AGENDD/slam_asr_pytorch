@@ -36,22 +36,27 @@ ds = load_from_disk(
 ds = ds['test'].select(range(100))
 ds = ds.map(map_to_array)
 
-for i in range(len(ds)):
-    x = ds[i]["speech"]
-    y = ds[i]["translation"]
-    pr = ds[i]["prompt"]
-    z = ds[i]["sentence"]
-    # asr(x)
-    
-    
+with open("temp_audio/text.txt",'w') as f:
+    for i in range(len(ds)):
+        x = ds[i]["speech"]
+        y = ds[i]["translation"]
+        pr = ds[i]["prompt"]
+        z = ds[i]["sentence"]
+        # asr(x)
+        
+        
 
-    output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
-    print(f"Predicted: {asr.language_tokenizer.batch_decode(output)[0]}")
-    print(f"Reference: {y}")
-    print(f"Source:{z}")
-    print("\n\n")
-    
-    
-    sf.write(f'temp_audio/temp{i}.wav', x, 16000)
-    # playsound('temp.wav')
-    # os.remove('temp.wav')
+        output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
+        print(f"Predicted: {asr.language_tokenizer.batch_decode(output)[0]}")
+        print(f"Reference: {y}")
+        print(f"Source:{z}")
+        print("\n\n")
+        
+        f.write(f"Predicted: {asr.language_tokenizer.batch_decode(output)[0]}\n")
+        f.write(f"Reference: {y}\n")
+        f.write(f"Source:{z}")
+        f.write("\n\n")
+        
+        sf.write(f'temp_audio/temp{i}.wav', x, 16000)
+        # playsound('temp.wav')
+        # os.remove('temp.wav')
