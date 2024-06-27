@@ -52,6 +52,6 @@ for i in range(len(ds)):
     print("\n\n")
     
     
-    # sf.write('temp.wav', x, 16000)
+    sf.write(f'temp_audio/temp{i}.wav', x, 16000)
     # playsound('temp.wav')
     # os.remove('temp.wav')
