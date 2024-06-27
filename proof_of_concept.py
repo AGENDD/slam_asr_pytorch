@@ -4,6 +4,15 @@ import torch
 from modeling.asr import SLAM_ASR
 from safetensors.torch import load_file
 from datasets import load_from_disk
+
+import soundfile as sf
+import numpy as np
+from pydub import AudioSegment
+from pydub.playback import play
+import time
+import os
+
+
 torch.cuda.set_device(1)
 
 asr = SLAM_ASR(
@@ -33,9 +42,19 @@ for i in range(len(ds)):
     x = ds[i]["speech"]
     y = ds[i]["translation"]
     pr = ds[i]["prompt"]
+    z = ds[i]["sentence"]
     # asr(x)
+    
+    
 
     output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
     print(f"Predicted: {asr.language_tokenizer.batch_decode(output)[0]}")
     print(f"Reference: {y}")
+    print(f"Source:{z}")
     print("\n\n")
+    
+    sf.write('temp.wav', x, 16000)
+    audio = AudioSegment.from_wav('temp.wav')
+    play(audio)
+    time.sleep(len(audio) / 1000.0)
+    os.remove('temp.wav')
