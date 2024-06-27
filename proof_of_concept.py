@@ -7,11 +7,9 @@ from datasets import load_from_disk
 
 import soundfile as sf
 import numpy as np
-from pydub import AudioSegment
-from pydub.playback import play
-import time
 import os
-import pygame
+from playsound import playsound
+
 
 torch.cuda.set_device(1)
 
@@ -55,9 +53,5 @@ for i in range(len(ds)):
     
     
     sf.write('temp.wav', x, 16000)
-    pygame.mixer.init()
-    pygame.mixer.music.load('temp.wav')
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        time.sleep(1)
+    playsound('temp.wav')
     os.remove('temp.wav')
