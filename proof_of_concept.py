@@ -53,7 +53,9 @@ for i in range(len(ds)):
     print(f"Source:{z}")
     print("\n\n")
     
+    
     sf.write('temp.wav', x, 16000)
+    pygame.mixer.init()
     pygame.mixer.music.load('temp.wav')
     pygame.mixer.music.play()
     while pygame.mixer.music.get_busy():
