@@ -33,7 +33,7 @@ def map_to_array(batch):
 ds = load_from_disk(
     "temp_datasets/covost_zh-CN2en"
 )
-ds = ds['test'].select(range(100))
+ds = ds['train'].select(range(100))
 ds = ds.map(map_to_array)
 
 with open("temp_audio/text.txt",'w') as f:
