@@ -48,7 +48,7 @@ with open("temp_audio/text.txt",'w') as f:
 
         output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
         output = asr.language_tokenizer.batch_decode(output)[0]
-        output = output.replace("[pad]","")
+        output = output.replace("[PAD]","")
         print(f"Predicted: {output}")
         print(f"Reference: {y}")
         print(f"Source:{z}")
