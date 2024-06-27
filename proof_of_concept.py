@@ -33,32 +33,32 @@ def map_to_array(batch):
 ds = load_from_disk(
     "temp_datasets/covost_zh-CN2en"
 )
-ds = ds['train'].select(range(100))
+ds = ds['validation'].select(range(100))
 ds = ds.map(map_to_array)
 
-with open("temp_audio/text.txt",'w') as f:
-    for i in range(len(ds)):
-        x = ds[i]["speech"]
-        y = ds[i]["translation"]
-        pr = ds[i]["prompt"]
-        z = ds[i]["sentence"]
-        # asr(x)
-        
-        
+# with open("temp_audio/text.txt",'w') as f:
+for i in range(len(ds)):
+    x = ds[i]["speech"]
+    y = ds[i]["translation"]
+    pr = ds[i]["prompt"]
+    z = ds[i]["sentence"]
+    # asr(x)
+    
+    
 
-        output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
-        output = asr.language_tokenizer.batch_decode(output)[0]
-        output = output.replace("[PAD]","")
-        print(f"Predicted: {output}")
-        print(f"Reference: {y}")
-        print(f"Source:{z}")
-        print("\n\n")
+    output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
+    output = asr.language_tokenizer.batch_decode(output)[0]
+    output = output.replace("[PAD]","")
+    print(f"Predicted: {output}")
+    print(f"Reference: {y}")
+    print(f"Source:{z}")
+    print("\n\n")
         
-        f.write(f"Predicted: {output}\n")
-        f.write(f"Reference: {y}\n")
-        f.write(f"Source:{z}")
-        f.write("\n\n")
+        # f.write(f"Predicted: {output}\n")
+        # f.write(f"Reference: {y}\n")
+        # f.write(f"Source:{z}")
+        # f.write("\n\n")
         
-        sf.write(f'temp_audio/temp{i}.wav', x, 16000)
+        # sf.write(f'temp_audio/temp{i}.wav', x, 16000)
         # playsound('temp.wav')
         # os.remove('temp.wav')
