@@ -153,7 +153,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         def map_to_array(batch):
             # Adapted to librispeech dataset
             # speech, _ = sf.read(batch["file"])
-            audio_data_resampled = librosa.resample(batch["audio"]["array"], 48000, 16000)
+            audio_data_resampled = librosa.resample(batch["audio"]["array"],orig_sr= 48000,target_sr= 16000)
             batch["speech"] = audio_data_resampled
             batch['text'] = batch["sentence"]
             return batch
