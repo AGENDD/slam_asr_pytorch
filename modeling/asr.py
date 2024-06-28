@@ -176,7 +176,6 @@ class SLAM_ASR(nn.Module):
         """
         First, run audios through speech_encoder to get the embeddings and mask
         """
-        print(audios.shape)
         speech_output, mask = self.speech_encoder(audios)
         
         batch_size = speech_output.shape[0]
@@ -245,6 +244,8 @@ class SLAM_ASR(nn.Module):
         return prompt_embed, prompt_mask, true_labels
 
     def forward(self, audios: List[float], transcriptions: List[str] = None):
+        print(audios)
+        print(len(audios))
         prompt_embed, prompt_mask, true_labels = self._prepare_input_embeds(
             audios, transcriptions
         )
@@ -257,7 +258,7 @@ class SLAM_ASR(nn.Module):
         )  # CausalLMOutputWithPast
         return outputs
 
-    def generate(self, audios: List[str], stopping_criteria=None):
+    def generate(self, audios: List[float], stopping_criteria=None):
         """
         Generate the transcription
         """
