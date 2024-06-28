@@ -139,7 +139,8 @@ def local_dataset(dataset_name):
     return split_dataset
 
 
-import librosa
+import resampy
+
 # 创建数据模块，包括训练集、验证集和预测集，以及数据整理器。
 def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     """
@@ -153,7 +154,10 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         def map_to_array(batch):
             # Adapted to librispeech dataset
             # speech, _ = sf.read(batch["file"])
-            audio_data_resampled = librosa.resample(batch["audio"]["array"],orig_sr= 48000,target_sr= 16000)
+            
+            audio_data_resampled = resampy.resample(batch["audio"]["array"], 48000, 16000)
+            print(f"{len(batch["audio"]["array"])}-{len(audio_data_resampled)}")
+            
             batch["speech"] = audio_data_resampled
             batch['text'] = batch["sentence"]
             return batch
@@ -173,7 +177,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # 计算音频的长度（秒）
             duration = len(sample["speech"]) / sample_rate
             # 如果音频的长度大于15秒，返回False
-            if duration > 15:
+            if duration > 15 or duration < 1:
                 return False
             # 否则，返回True
             return True
