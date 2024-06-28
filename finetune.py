@@ -200,6 +200,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         print("load original data")
         # dataset = load_from_disk(args.dataset)
         dataset = load_dataset(args.dataset,"english")
+        exit(0)
         train_data, test_data = train_test_split(dataset, test_size=0.2)
         dataset = DatasetDict(
             {
