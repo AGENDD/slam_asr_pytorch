@@ -134,10 +134,10 @@ class SLAM_ASR(nn.Module):
 
         # precache the embeddings for prompt
         with torch.no_grad():
-            inputs_embeds1 = self.language_model.model.embed_tokens(
+            inputs_embeds1 = self.language_model.rwkv.get_inputs_embeddings()(
                 input_dict1.input_ids
             )
-            inputs_embeds2 = self.language_model.model.embed_tokens(
+            inputs_embeds2 = self.language_model.rwkv.get_inputs_embeddings()(
                 input_dict2.input_ids
             )
         self.embed_bank["embed1"] = inputs_embeds1
@@ -208,7 +208,7 @@ class SLAM_ASR(nn.Module):
                 truncation=True,
                 add_special_tokens=False,
             ).to(self.device)
-            labels_embeds = self.language_model.model.embed_tokens(_labels.input_ids)
+            labels_embeds = self.language_model.rwkv.get_inputs_embeddings()(_labels.input_ids)
             att3 = _labels.attention_mask
             
             # print(embed1.shape)
