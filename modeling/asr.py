@@ -244,8 +244,6 @@ class SLAM_ASR(nn.Module):
         return prompt_embed, prompt_mask, true_labels
 
     def forward(self, audios: List[float], transcriptions: List[str] = None):
-        print(audios)
-        print(len(audios))
         prompt_embed, prompt_mask, true_labels = self._prepare_input_embeds(
             audios, transcriptions
         )

@@ -156,7 +156,6 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # speech, _ = sf.read(batch["file"])
             o_a = batch["audio"]["array"]
             audio_data_resampled = resampy.resample(batch["audio"]["array"], 48000, 16000)
-            print(f"{len(o_a)}-{len(audio_data_resampled)}")
             
             batch["speech"] = audio_data_resampled
             batch['text'] = batch["sentence"]
