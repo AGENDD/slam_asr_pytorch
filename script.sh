@@ -1,7 +1,7 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precision fp16 finetune.py \
-    --dataset temp_datasets/covost_zh-CN2en \
+CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 1 --mixed_precision fp16 finetune.py \
+    --dataset facebook/multilingual_librispeech \
     --split clean \
-    --output_dir ./output/covost_slam_asr_ch2en \
+    --output_dir ./output/rwkv \
     --logging_steps 10 \
     --save_strategy steps \
     --save_steps 100 \

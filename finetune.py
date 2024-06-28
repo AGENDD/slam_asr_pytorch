@@ -59,11 +59,9 @@ def get_accelerate_model(args, checkpoint_dir):
     
 
     model = SLAM_ASR(
-        # speech_encoder_model_id="facebook/hubert-large-ll60k",
         speech_encoder_model_id ="facebook/hubert-base-ls960",
-        # language_model_id="TinyLlama/TinyLlama-1.1B-Chat-v0.4",
-        language_model_id="openlm-research/open_llama_3b",
-        # language_model_id="openlm-research/open_llama_7b",
+        # language_model_id="openlm-research/open_llama_3b",
+        language_model_id="RWKV/rwkv-6-world-1b6",
         train_mode="adapter",
         token = token,
     )
@@ -154,29 +152,30 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # Adapted to librispeech dataset
             # speech, _ = sf.read(batch["file"])
             batch["speech"] = batch["audio"]["array"]
+            batch['text'] = batch["text"]
             return batch
 
         print(f"dataset: {dataset}")
         dataset = dataset.map(
             map_to_array,
             num_proc=8,
-            remove_columns=["file", "sentence", "validate", "audio"],
+            remove_columns=["file","audio","text","speaker_id","chapter_id","id"]
         )
 
         print(f"dataset after mapping: {dataset}")
 
-        # def check_duration(sample):
-        #     # 音频的采样率为16kHz
-        #     sample_rate = 16000
-        #     # 计算音频的长度（秒）
-        #     duration = len(sample["speech"]) / sample_rate
-        #     # 如果音频的长度大于15秒，返回False
-        #     if duration > 15:
-        #         return False
-        #     # 否则，返回True
-        #     return True
+        def check_duration(sample):
+            # 音频的采样率为16kHz
+            sample_rate = 16000
+            # 计算音频的长度（秒）
+            duration = len(sample["speech"]) / sample_rate
+            # 如果音频的长度大于15秒，返回False
+            if duration > 15:
+                return False
+            # 否则，返回True
+            return True
 
-        # dataset = dataset.filter(check_duration, num_proc=10)
+        dataset = dataset.filter(check_duration, num_proc=10)
         # dataset.save_to_disk(temp_dataset_file)
 
         return dataset
@@ -191,30 +190,24 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     # Load dataset.
 
     from datasets import DatasetDict
-
+    from sklearn.model_selection import train_test_split
+    
+    
     if os.path.exists(temp_dataset_file):
         print("load directly")
         train_dataset = load_from_disk(temp_dataset_file)
     else:
         print("load original data")
-        dataset = load_from_disk(args.dataset)
-        # dataset = DatasetDict(
-        #     {
-        #         "train": dataset[TRAIN_TAG],
-        #         "validation": dataset["validation"],
-        #         "test": dataset["test"],
-        #     }
-        # )
+        # dataset = load_from_disk(args.dataset)
+        dataset = load_dataset(args.dataset)
+        train_data, test_data = train_test_split(dataset, test_size=0.2)
+        dataset = DatasetDict(
+            {
+                "train": train_data,
+                "test": test_data,
+            }
+        )
         dataset = format_dataset(dataset)
-    # rename TRAIN_TAG to "train"
-    # dataset["train"] = dataset.pop(TRAIN_TAG)
-
-    # print(
-    #     f"Splitting train dataset in train and validation according to `eval_dataset_size = {args.eval_dataset_size}`"
-    # )
-    # dataset = dataset["train"].train_test_split(
-    #     test_size=args.eval_dataset_size, shuffle=True, seed=42
-    # )
 
     # Split train/eval, reduce size
         if args.do_eval or args.do_predict:
@@ -244,14 +237,10 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             ):
                 train_dataset = train_dataset.select(range(args.max_train_samples))
             if args.group_by_length:
-                train_bylength = "temp_datasets/train_bylength"
-                if os.path.exists(train_bylength):
-                    train_dataset = load_from_disk(train_bylength)
-                else:
-                    train_dataset = train_dataset.map(
-                        lambda x: {"length": len(x["translation"])}, num_proc=8
-                    )
-                    train_dataset.save_to_disk(temp_dataset_file)
+                train_dataset = train_dataset.map(
+                    lambda x: {"length": len(x["translation"])}, num_proc=8
+                )
+                train_dataset.save_to_disk(temp_dataset_file)
 
     data_collator = DataCollatorForSlamASR(
         source_max_len=args.source_max_len,

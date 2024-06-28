@@ -14,7 +14,9 @@ try:
     from .speech_encoder import SpeechEncoder
 except ImportError:
     from speech_encoder import SpeechEncoder
-    
+
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 from .lora import LinearWithLoRA
 
 
@@ -45,21 +47,21 @@ class SLAM_ASR(nn.Module):
 
         """
 
-        self.language_tokenizer = LlamaTokenizer.from_pretrained(language_model_id,token = token)
-        self.language_model = LlamaForCausalLM.from_pretrained(
+        self.language_tokenizer = AutoTokenizer.from_pretrained(language_model_id,token = token)
+        self.language_model = AutoModelForCausalLM.from_pretrained(
             language_model_id,
             trust_remote_code=True,
-            token = token
+            # token = token
         ).to(self.device)
-        self.language_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-        self.language_model.resize_token_embeddings(len(self.language_tokenizer))
+        # self.language_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        # self.language_model.resize_token_embeddings(len(self.language_tokenizer))
         
         ###
-        print("Model before lora:")
-        print(self.language_model)
-        self.load_lora(self.language_model)
-        print("Model after lora:")
-        print(self.language_model)
+        # print("Model before lora:")
+        # print(self.language_model)
+        # self.load_lora(self.language_model)
+        # print("Model after lora:")
+        # print(self.language_model)
         ###
                 
         language_project_dim = self.language_model.config.hidden_size
@@ -86,9 +88,9 @@ class SLAM_ASR(nn.Module):
 
         
 
-        self.prompt_part1 = """<|im_start|>user\n"""
+        self.prompt_part1 = """User:"""
         self.prompt_part2 = (
-            """<|im_end|>\n<|im_start|>assistant\n"""
+            """transcribe it.\nAssistant:"""
         )
         self.embed_bank = {"embed1": None, "embed2": None, "att1": None, "att2": None}
         self.set_embed_bank()
@@ -167,7 +169,7 @@ class SLAM_ASR(nn.Module):
                 print(f"    {name}: {param.shape}")
 
     def _prepare_input_embeds(
-        self, audios: List[float],prompts:List[str], transcriptions: List[str] = None
+        self, audios: List[float], transcriptions: List[str] = None
     ):
         """
         First, run audios through speech_encoder to get the embeddings and mask
@@ -185,17 +187,17 @@ class SLAM_ASR(nn.Module):
         true_labels = None
         
         ##################################
-        pr_output = self.language_tokenizer(
-            prompts, return_tensors="pt", add_special_tokens=False,padding=True
-        ).to(self.device)
-        att_pr = pr_output.attention_mask
-        with torch.no_grad():
-            pr_output = self.language_model.model.embed_tokens(
-                pr_output.input_ids
-            )
+        # pr_output = self.language_tokenizer(
+        #     prompts, return_tensors="pt", add_special_tokens=False,padding=True
+        # ).to(self.device)
+        # att_pr = pr_output.attention_mask
+        # with torch.no_grad():
+        #     pr_output = self.language_model.model.embed_tokens(
+        #         pr_output.input_ids
+        #     )
         ##################################
         
-        prompt_length = embed1.shape[1] + speech_output.shape[1] + pr_output.shape[1]+ embed2.shape[1]
+        prompt_length = embed1.shape[1] + speech_output.shape[1] +  embed2.shape[1]
         if transcriptions is not None:
             _labels = self.language_tokenizer(
                 transcriptions,
@@ -214,9 +216,9 @@ class SLAM_ASR(nn.Module):
             # print(labels_embeds.shape)
 
             prompt_embed = torch.cat(
-                [embed1, speech_output,pr_output, embed2, labels_embeds], dim=1
+                [embed1, speech_output, embed2, labels_embeds], dim=1
             )  # (b, 4+audio+11+seq_len, 2048)
-            prompt_mask = torch.cat([att1, mask,att_pr, att2, att3], dim=1)
+            prompt_mask = torch.cat([att1, mask, att2, att3], dim=1)
 
             true_labels = _labels.input_ids
             # attach "prompt_length" * -100 to the start of the true_labels
@@ -234,15 +236,15 @@ class SLAM_ASR(nn.Module):
             )
         else:
             prompt_embed = torch.cat(
-                [embed1, speech_output,pr_output, embed2], dim=1
+                [embed1, speech_output, embed2], dim=1
             )  # (b, 4+audio+11, 2048)
-            prompt_mask = torch.cat([att1, mask,att_pr, att2], dim=1)
+            prompt_mask = torch.cat([att1, mask, att2], dim=1)
             true_labels = None
         return prompt_embed, prompt_mask, true_labels
 
-    def forward(self, audios: List[float],prompts:List[str], transcriptions: List[str] = None):
+    def forward(self, audios: List[float], transcriptions: List[str] = None):
         prompt_embed, prompt_mask, true_labels = self._prepare_input_embeds(
-            audios, prompts, transcriptions
+            audios, transcriptions
         )
         # run the prompt through the language model
 
@@ -253,11 +255,11 @@ class SLAM_ASR(nn.Module):
         )  # CausalLMOutputWithPast
         return outputs
 
-    def generate(self, audios: List[str],prompts:List[str], stopping_criteria=None):
+    def generate(self, audios: List[str], stopping_criteria=None):
         """
         Generate the transcription
         """
-        prompt_embed, prompt_mask, _ = self._prepare_input_embeds(audios,prompts)
+        prompt_embed, prompt_mask, _ = self._prepare_input_embeds(audios)
         outputs = self.language_model.generate(
             inputs_embeds=prompt_embed,
             attention_mask=prompt_mask,
