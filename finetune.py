@@ -139,27 +139,30 @@ def local_dataset(dataset_name):
     return split_dataset
 
 
+import librosa
 # 创建数据模块，包括训练集、验证集和预测集，以及数据整理器。
 def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     """
     Make dataset and collator for supervised fine-tuning.
     Datasets are expected to have the following columns: { `input`, `output` }
     """
-    temp_dataset_file = args.dataset+"-final"
+    LANG = "zh-CN"
+    temp_dataset_file = "temp_datasets/rwkv/"+LANG+"-final"
 
     def format_dataset(dataset):
         def map_to_array(batch):
             # Adapted to librispeech dataset
             # speech, _ = sf.read(batch["file"])
-            batch["speech"] = batch["audio"]["array"]
-            batch['text'] = batch["text"]
+            audio_data_resampled = librosa.resample(batch["audio"]["array"], 48000, 16000)
+            batch["speech"] = audio_data_resampled
+            batch['text'] = batch["sentence"]
             return batch
 
         print(f"dataset: {dataset}")
         dataset = dataset.map(
             map_to_array,
             num_proc=8,
-            remove_columns=["file","audio","text","speaker_id","chapter_id","id"]
+            remove_columns=dataset.column_names["train"]
         )
 
         print(f"dataset after mapping: {dataset}")
@@ -175,7 +178,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             # 否则，返回True
             return True
 
-        dataset = dataset.filter(check_duration, num_proc=10)
+        dataset = dataset.filter(check_duration)
         # dataset.save_to_disk(temp_dataset_file)
 
         return dataset
@@ -191,7 +194,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
     from datasets import DatasetDict
     from sklearn.model_selection import train_test_split
-    
+
     
     if os.path.exists(temp_dataset_file):
         print("load directly")
@@ -199,13 +202,12 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     else:
         print("load original data")
         # dataset = load_from_disk(args.dataset)
-        dataset = load_dataset(args.dataset,"english")
-        print(dataset)
-        train_data, test_data = train_test_split(dataset, test_size=0.2)
+        dataset = load_dataset(args.dataset,LANG)
+        # train_data, test_data = train_test_split(dataset, test_size=0.2)
         dataset = DatasetDict(
             {
-                "train": train_data,
-                "test": test_data,
+                "train": dataset["train"],
+                "test": dataset['test'],
             }
         )
         dataset = format_dataset(dataset)
