@@ -43,8 +43,11 @@ for i in range(len(ds)):
     # asr(x)
     
     
-
+    print(f"speech:{x}")
     output = asr.generate(x)  # causal of shape (b, seq_len, vocab_size)
+    print(f"output:{output}")
+    
+    
     output = asr.language_tokenizer.batch_decode(output)[0]
     output = output.replace("[PAD]","")
     print(f"Predicted: {output}")
