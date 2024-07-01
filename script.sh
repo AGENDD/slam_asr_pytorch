@@ -23,7 +23,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precisi
     --per_device_train_batch_size 4 \
     --max_steps 0 \
     --num_train_epochs 50 \
-    --learning_rate 1e-4 \
+    --learning_rate 5e-5 \
     --adam_beta2 0.999 \
     --max_grad_norm 1.0 \
     --weight_decay 0.0 \
@@ -31,3 +31,4 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precisi
     --trust_remote_code \
     --report_to tensorboard \
     --ddp_find_unused_parameters False \
+    --gradient_clip_val 30 \
