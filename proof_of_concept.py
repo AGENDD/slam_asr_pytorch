@@ -45,10 +45,11 @@ for i in range(len(ds)):
     
     # print(f"speech:{len(x)}")
     output = asr.generate(x)["logits"]  # causal of shape (b, seq_len, vocab_size)
+    print(output.shape)
     # print(f"output:{output}")
     
     
-    output = asr.language_tokenizer.decode(output)
+    output = asr.language_tokenizer.batch_decode(output)[0]
     output = output.replace("[PAD]","")
     print(f"Predicted: {output}")
     print(f"Source:{z}")
