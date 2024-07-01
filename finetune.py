@@ -147,8 +147,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     Make dataset and collator for supervised fine-tuning.
     Datasets are expected to have the following columns: { `input`, `output` }
     """
-    # LANG = "zh-CN"
-    LANG = "en"
+    LANG = "zh-CN"
+    # LANG = "en"
     temp_dataset_file = "temp_datasets/rwkv/"+LANG+"-final"
 
     def format_dataset(dataset):
