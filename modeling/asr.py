@@ -255,7 +255,7 @@ class SLAM_ASR(nn.Module):
             labels=true_labels,
         )  # CausalLMOutputWithPast
         
-        print(f"true_labels:{true_labels[0]}-outputs:{true_labels[0]}",end="\r")
+        # print(f"true_labels:{true_labels[0]}-outputs:{true_labels[0]}",end="\r")
         return outputs
 
     def generate(self, audios: List[float], stopping_criteria=None):
