@@ -263,9 +263,11 @@ class SLAM_ASR(nn.Module):
         Generate the transcription
         """
         prompt_embed, prompt_mask, _ = self._prepare_input_embeds(audios)
-        outputs = self.language_model(
+        outputs = self.language_model.generate(
             inputs_embeds=prompt_embed,
-            attention_mask=prompt_mask.bool(),
+            attention_mask=prompt_mask,
+            stopping_criteria=stopping_criteria,
+            max_new_tokens = 32
         )
         return outputs
 
