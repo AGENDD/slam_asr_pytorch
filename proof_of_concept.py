@@ -15,12 +15,12 @@ torch.cuda.set_device(1)
 
 asr = SLAM_ASR(
     speech_encoder_model_id ="facebook/hubert-base-ls960",
-        # language_model_id="TinyLlama/TinyLlama-1.1B-Chat-v0.4",
-    language_model_id="openlm-research/open_llama_3b",
+    # language_model_id="openlm-research/open_llama_3b",
+    language_model_id="temp_models/rwkv-6-world-1b6",
     train_mode="adapter",
 )
 # load the state_dict from output/adapter_weights.pt
-adapter_weight = load_file("output/covost_slam_asr_ch2en/checkpoint-16400/model.safetensors")
+adapter_weight = load_file("output/rwkv/checkpoint-1200/model.safetensors")
 asr.load_state_dict(adapter_weight, strict=False)
 
 
@@ -31,26 +31,23 @@ def map_to_array(batch):
 
 
 ds = load_from_disk(
-    "temp_datasets/covost_zh-CN2en"
+    "temp_datasets/rwkv/zh-CN-final"
 )
 ds = ds['validation'].select(range(100))
-ds = ds.map(map_to_array)
+# ds = ds.map(map_to_array)
 
 # with open("temp_audio/text.txt",'w') as f:
 for i in range(len(ds)):
     x = ds[i]["speech"]
-    y = ds[i]["translation"]
-    pr = ds[i]["prompt"]
-    z = ds[i]["sentence"]
+    z = ds[i]["text"]
     # asr(x)
     
     
 
-    output = asr.generate(x, pr)  # causal of shape (b, seq_len, vocab_size)
+    output = asr.generate(x)  # causal of shape (b, seq_len, vocab_size)
     output = asr.language_tokenizer.batch_decode(output)[0]
     output = output.replace("[PAD]","")
     print(f"Predicted: {output}")
-    print(f"Reference: {y}")
     print(f"Source:{z}")
     print("\n\n")
         
