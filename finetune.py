@@ -326,6 +326,7 @@ def train():
     data_module = make_data_module(tokenizer=tokenizer, args=args)
 
     # 4. 加载训练器
+    training_args.gradient_clip_val = 30
     trainer = Seq2SeqTrainer(
         model=model,
         tokenizer=tokenizer,
