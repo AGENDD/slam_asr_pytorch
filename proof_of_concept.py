@@ -34,7 +34,7 @@ def map_to_array(batch):
 ds = load_dataset("mozilla-foundation/common_voice_13_0","zh-CN")
 
 ds = ds['validation'].select(range(100))
-ds = ds.map(map_to_array,remove_columns=ds.column_names["train"])
+ds = ds.map(map_to_array)
 
 # with open("temp_audio/text.txt",'w') as f:
 for i in range(len(ds)):
