@@ -26,15 +26,14 @@ asr.load_state_dict(adapter_weight, strict=False)
 
 def map_to_array(batch):
     
-    batch["speech"] = batch["audio"]['array'][0]
+    batch["speech"] = batch["audio"]['array']
+    batch['text'] = batch["sentence"]
     return batch
 
 
-ds = load_from_disk(
-    "temp_datasets/rwkv/zh-CN-final"
-)
+ds = load_dataset("mozilla-foundation/common_voice_13_0","zh-CN")
 ds = ds['validation'].select(range(100))
-# ds = ds.map(map_to_array)
+ds = ds.map(map_to_array,remove_columns=ds.column_names["train"])
 
 # with open("temp_audio/text.txt",'w') as f:
 for i in range(len(ds)):
