@@ -10,6 +10,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precisi
     --eval_dataset_size 10 \
     --max_eval_samples 1000 \
     --per_device_eval_batch_size 1 \
+    --gradient_clip_val 30 \
     --max_new_tokens 32 \
     --dataloader_num_workers 8 \
     --group_by_length=True \
@@ -31,4 +32,3 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --mixed_precisi
     --trust_remote_code \
     --report_to tensorboard \
     --ddp_find_unused_parameters False \
-    --gradient_clip_val 30 \

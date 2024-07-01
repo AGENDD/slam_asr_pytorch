@@ -330,7 +330,6 @@ def train():
         model=model,
         tokenizer=tokenizer,
         args=training_args,
-        gradient_clip_val=30,
         **{k: v for k, v in data_module.items() if k != "predict_dataset"},
     )
 
