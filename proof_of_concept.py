@@ -44,7 +44,7 @@ for i in range(len(ds)):
     
     
     print(f"speech:{x}")
-    output = asr.generate(x)  # causal of shape (b, seq_len, vocab_size)
+    output = asr.generate(x)["logits"]  # causal of shape (b, seq_len, vocab_size)
     print(f"output:{output}")
     
     
