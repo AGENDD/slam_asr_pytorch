@@ -170,6 +170,19 @@ class SLAM_ASR(nn.Module):
             if param.requires_grad:
                 print(f"    {name}: {param.shape}")
 
+    
+    def remove_padding(self, x, mask):
+                #去除speech_output的padding部分
+        x_no_padding = []
+        # 对于每一个样本和对应的掩码
+        for x_i, mask_i in zip(x, mask):
+            # 使用掩码来选择非填充部分
+            x_i_no_padding = x_i[mask_i.bool()]
+            # 将结果添加到列表中
+            x_no_padding.append(x_i_no_padding)
+        
+        return x_no_padding
+    
     def _prepare_input_embeds(
         self, audios: List[float], transcriptions: List[str] = None
     ):
@@ -180,8 +193,12 @@ class SLAM_ASR(nn.Module):
         
         speech_output, mask = self.speech_encoder(audios) #no padding
         
-        print(speech_output.shape)
-        print(mask.shape)
+        print(f"x after hubert and adapter:{speech_output.shape}")
+        print(f"x mask: {mask.shape}")
+        
+
+        x_no_padding = self.remove_padding(speech_output,mask)
+        print(f"x with no padding: {len(x_no_padding)}-{[len(x) for x in x_no_padding]}")
         
         
         # batch_size = speech_output.shape[0]
@@ -212,7 +229,7 @@ class SLAM_ASR(nn.Module):
             _labels = self.language_tokenizer(
                 transcriptions,
                 return_tensors="pt",
-                padding=False,
+                padding=True,
                 truncation=True,
                 add_special_tokens=False,
             ).to(self.device)
@@ -220,8 +237,12 @@ class SLAM_ASR(nn.Module):
             labels_embeds = self.language_model.rwkv.get_input_embeddings()(_labels.input_ids)
             att3 = _labels.attention_mask
             
-            print(labels_embeds.shape)
-            print(att3.shape)
+            print(f"embed transcrp: {labels_embeds.shape}")
+            print(f"transcrp mask: {att3.shape}")
+            
+            label_no_padding = self.remove_padding(labels_embeds, att3)
+            
+            print(f"transcrp with no padding: {len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
             
             exit(0)
             # print(embed1.shape)
@@ -250,10 +271,11 @@ class SLAM_ASR(nn.Module):
                 dim=1,
             )
         else:
-            prompt_embed = torch.cat(
-                [embed1, speech_output, embed2], dim=1
-            )  # (b, 4+audio+11, 2048)
-            prompt_mask = torch.cat([att1, mask, att2], dim=1)
+            exit(0)
+            # prompt_embed = torch.cat(
+            #     [embed1, speech_output, embed2], dim=1
+            # )  # (b, 4+audio+11, 2048)
+            # prompt_mask = torch.cat([att1, mask, att2], dim=1)
             true_labels = None
         return prompt_embed, prompt_mask, true_labels
 
