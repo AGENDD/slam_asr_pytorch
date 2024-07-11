@@ -269,6 +269,7 @@ class SLAM_ASR(nn.Module):
                 for _ in range(times):
                     x.append(x[len(x)-1].copy())
             
+            print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
             exit(0)
 
             prompt_embed = torch.cat(
