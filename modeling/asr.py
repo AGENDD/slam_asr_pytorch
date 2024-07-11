@@ -267,7 +267,8 @@ class SLAM_ASR(nn.Module):
             for x in audio_label:
                 times = max_seq - len(x)
                 for _ in range(times):
-                    x.append(x[len(x)-1].copy())
+                    x = torch.cat((x,[[x[len(x)-1].copy()]]), dim=1)
+                    # x.append(x[len(x)-1].copy())
             
             print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
             exit(0)
