@@ -271,7 +271,12 @@ class SLAM_ASR(nn.Module):
                 audio_label[i] = x
                     # x.append(x[len(x)-1].copy())
             
-            print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
+            print(f"padded inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
+            
+            #转换成tensor
+            audio_label = torch.stack(audio_label)
+            print(f"padded inputs tensor:\t{audio_label.shape}")
+            
             exit(0)
 
             prompt_embed = torch.cat(
