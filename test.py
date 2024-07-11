@@ -16,4 +16,4 @@ model = SLAM_ASR(
 
 data = load_from_disk("temp_datasets/en-final").select(range(3))
 
-output = model([i["speech"] for i in data])
+output = model([i["speech"] for i in data], [i["text"].lower() for i in data])
