@@ -187,7 +187,7 @@ class SLAM_ASR(nn.Module):
         #将没有padding的audio和transcirption在第二维度拼起来
         result = []
         for sublist1, sublist2 in zip(audio, transcription):
-            sub_result = sublist1 + sublist2
+            sub_result = torch.cat((sublist1 ,sublist2), dim=0)
             result.append(sub_result)
 
         return result
