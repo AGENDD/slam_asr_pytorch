@@ -254,8 +254,8 @@ class SLAM_ASR(nn.Module):
             
             print(f"embed transcription with no padding: {len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
             
-            audio_label = self.concatenate_audio_transcription()
-            print(f"embed transcription with no padding: {len(audio_label)}-{[len(x) for x in audio_label]}")
+            audio_label = self.concatenate_audio_transcription(audio_no_padding , label_no_padding)
+            print(f"concatenated inputs with no padding: {len(audio_label)}-{[len(x) for x in audio_label]}")
             
             exit(0)
 
