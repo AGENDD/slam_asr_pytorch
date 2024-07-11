@@ -183,6 +183,16 @@ class SLAM_ASR(nn.Module):
         
         return x_no_padding
     
+    def concatenate_audio_transcription(self, audio, transcription):
+        #将没有padding的audio和transcirption在第二维度拼起来
+        result = []
+        for sublist1, sublist2 in zip(audio, transcription):
+            sub_result = sublist1 + sublist2
+            result.append(sub_result)
+
+        return result
+    
+    
     def _prepare_input_embeds(
         self, audios: List[float], transcriptions: List[str] = None
     ):
@@ -193,12 +203,12 @@ class SLAM_ASR(nn.Module):
         
         speech_output, mask = self.speech_encoder(audios) #no padding
         
-        print(f"x after hubert and adapter:{speech_output.shape}")
-        print(f"x mask: {mask.shape}")
+        print(f"audio after hubert and adapter:{speech_output.shape}")
+        print(f"audio mask: {mask.shape}")
         
 
-        x_no_padding = self.remove_padding(speech_output,mask)
-        print(f"x with no padding: {len(x_no_padding)}-{[len(x) for x in x_no_padding]}")
+        audio_no_padding = self.remove_padding(speech_output,mask)
+        print(f"audio with no padding: {len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
         
         
         # batch_size = speech_output.shape[0]
@@ -237,19 +247,17 @@ class SLAM_ASR(nn.Module):
             labels_embeds = self.language_model.rwkv.get_input_embeddings()(_labels.input_ids)
             att3 = _labels.attention_mask
             
-            print(f"embed transcrp: {labels_embeds.shape}")
-            print(f"transcrp mask: {att3.shape}")
+            print(f"embed transcription: {labels_embeds.shape}")
+            print(f"transcription mask: {att3.shape}")
             
             label_no_padding = self.remove_padding(labels_embeds, att3)
             
-            print(f"transcrp with no padding: {len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
+            print(f"embed transcription with no padding: {len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
+            
+            audio_label = self.concatenate_audio_transcription()
+            print(f"embed transcription with no padding: {len(audio_label)}-{[len(x) for x in audio_label]}")
             
             exit(0)
-            # print(embed1.shape)
-            # print(speech_output.shape)
-            # print(pr_output.shape)
-            # print(embed2.shape)
-            # print(labels_embeds.shape)
 
             prompt_embed = torch.cat(
                 [speech_output, labels_embeds], dim=1
