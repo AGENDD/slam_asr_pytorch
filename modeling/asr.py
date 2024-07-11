@@ -266,7 +266,7 @@ class SLAM_ASR(nn.Module):
             max_seq = max([len(x) for x in audio_label])
             for x in audio_label:
                 times = max_seq - len(x)
-                for _ in times:
+                for _ in range(times):
                     x.append(x[len(x)-1].copy())
             
             exit(0)
