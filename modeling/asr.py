@@ -264,10 +264,11 @@ class SLAM_ASR(nn.Module):
             
             #对拼接后的内容进行padding
             max_seq = max([len(x) for x in audio_label])
-            for x in audio_label:
+            for i, x in enumerate(audio_label):
                 times = max_seq - len(x)
                 for _ in range(times):
                     x = torch.cat((x,x[len(x)-1].unsqueeze(0)))
+                audio_label[i] = x
                     # x.append(x[len(x)-1].copy())
             
             print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
