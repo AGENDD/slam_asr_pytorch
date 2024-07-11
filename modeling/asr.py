@@ -203,12 +203,12 @@ class SLAM_ASR(nn.Module):
         
         speech_output, mask = self.speech_encoder(audios) #no padding
         
-        print(f"audio after hubert and adapter:{speech_output.shape}")
-        print(f"audio mask: {mask.shape}")
+        print(f"audio after hubert and adapter:\t{speech_output.shape}")
+        print(f"audio mask:\t{mask.shape}")
         
-
+        
         audio_no_padding = self.remove_padding(speech_output,mask)
-        print(f"audio with no padding: {len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
+        print(f"audio with no padding:\t{len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
         
         
         # batch_size = speech_output.shape[0]
@@ -246,16 +246,18 @@ class SLAM_ASR(nn.Module):
             
             labels_embeds = self.language_model.rwkv.get_input_embeddings()(_labels.input_ids)
             att3 = _labels.attention_mask
+            padding_dim = labels_embeds[0][len(labels_embeds[0]) - 1]
             
-            print(f"embed transcription: {labels_embeds.shape}")
-            print(f"transcription mask: {att3.shape}")
+            print(f"padding_dim:\t{padding_dim.shape}")
+            print(f"embed transcription:\t{labels_embeds.shape}")
+            print(f"transcription mask:\t{att3.shape}")
             
             label_no_padding = self.remove_padding(labels_embeds, att3)
             
-            print(f"embed transcription with no padding: {len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
+            print(f"embed transcription with no padding:\t{len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
             
             audio_label = self.concatenate_audio_transcription(audio_no_padding , label_no_padding)
-            print(f"concatenated inputs with no padding: {len(audio_label)}-{[len(x) for x in audio_label]}")
+            print(f"concatenated inputs with no padding:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
             
             exit(0)
 
