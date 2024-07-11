@@ -183,7 +183,7 @@ class SLAM_ASR(nn.Module):
         print(speech_output.shape)
         print(mask.shape)
         
-        exit(0)
+        
         # batch_size = speech_output.shape[0]
         # get the prompt embeddings
         # embed1 = self.embed_bank["embed1"].repeat(batch_size, 1, 1)  # (b, 4, 2048)
@@ -212,7 +212,7 @@ class SLAM_ASR(nn.Module):
             _labels = self.language_tokenizer(
                 transcriptions,
                 return_tensors="pt",
-                padding=True,
+                padding=False,
                 truncation=True,
                 add_special_tokens=False,
             ).to(self.device)
@@ -220,6 +220,10 @@ class SLAM_ASR(nn.Module):
             labels_embeds = self.language_model.rwkv.get_input_embeddings()(_labels.input_ids)
             att3 = _labels.attention_mask
             
+            print(labels_embeds.shape)
+            print(att3.shape)
+            
+            exit(0)
             # print(embed1.shape)
             # print(speech_output.shape)
             # print(pr_output.shape)

@@ -14,6 +14,6 @@ model = SLAM_ASR(
     token = token,
 )
 
-data = load_from_disk("temp_datasets/en-final")[0]
+data = load_from_disk("temp_datasets/en-final").select(range(3))
 
-output = model(data["speech"])
+output = model([i["speech"] for i in data])
