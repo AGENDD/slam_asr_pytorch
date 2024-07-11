@@ -201,12 +201,12 @@ class SLAM_ASR(nn.Module):
         """
         
         
-        speech_output, mask = self.speech_encoder(audios) #no padding
+        speech_output, mask = self.speech_encoder(audios)
         
         print(f"audio after hubert and adapter:\t{speech_output.shape}")
         print(f"audio mask:\t{mask.shape}")
         
-        
+        #去除speech padding
         audio_no_padding = self.remove_padding(speech_output,mask)
         print(f"audio with no padding:\t{len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
         
@@ -248,16 +248,26 @@ class SLAM_ASR(nn.Module):
             att3 = _labels.attention_mask
             padding_dim = labels_embeds[0][len(labels_embeds[0]) - 1]
             
-            print(f"padding_dim:\t{padding_dim.shape}")
+            # print(f"padding_dim:\t{padding_dim.shape}")
             print(f"embed transcription:\t{labels_embeds.shape}")
             print(f"transcription mask:\t{att3.shape}")
             
-            label_no_padding = self.remove_padding(labels_embeds, att3)
+            # #去除label padding
+            # label_no_padding = self.remove_padding(labels_embeds, att3)
             
-            print(f"embed transcription with no padding:\t{len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
+            # print(f"embed transcription with no padding:\t{len(label_no_padding)}-{[len(x) for x in label_no_padding]}")
             
-            audio_label = self.concatenate_audio_transcription(audio_no_padding , label_no_padding)
-            print(f"concatenated inputs with no padding:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
+            #拼接speech和label
+            audio_label = self.concatenate_audio_transcription(audio_no_padding , labels_embeds)
+            print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
+            
+            
+            #对拼接后的内容进行padding
+            max_seq = max([len(x) for x in audio_label])
+            for x in audio_label:
+                times = max_seq - len(x)
+                for _ in times:
+                    x.append(x[len(x)-1].copy())
             
             exit(0)
 
