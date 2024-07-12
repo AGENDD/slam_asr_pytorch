@@ -302,7 +302,6 @@ class SLAM_ASR(nn.Module):
             
             padded_labels = []
             for i,t in enumerate(true_labels):
-                back_padding = max_mask - t.shape[0] - audio_no_padding[i].shape[0]
                 t = torch.cat(
                     [
                         torch.full(
@@ -311,16 +310,19 @@ class SLAM_ASR(nn.Module):
                             dtype=torch.long,
                             device=self.device,
                         ),
-                        t,
-                        torch.full(
-                            (back_padding, ),
-                            -100,
-                            dtype=torch.long,
-                            device=self.device,
-                        ),
+                        t
                     ]
                 )
                 padded_labels.append(t)
+            
+            print(f"left-side padded labels:\t{len(padded_labels)}-{[len(x) for x in padded_labels]}")
+            
+            max_label = max([len(t) for t in padded_labels])
+            for i,t in enumerate(padded_labels):
+                times = max_label - len(t)
+                for _ in range(times):
+                    t = torch.cat((t,t[len(t)-1].unsqueeze(0)))
+                padded_labels[i] = t
             
             padded_labels = torch.stack(padded_labels)
             
