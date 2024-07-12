@@ -192,34 +192,15 @@ class SLAM_ASR(nn.Module):
         """
         
         speech_output, mask = self.speech_encoder(audios)
-        print(f"audio after hubert and adapter:\t{speech_output.shape}")
-        print(f"audio mask:\t{mask.shape}")
-        
-        # batch_size = speech_output.shape[0]
-        # get the prompt embeddings
-        # embed1 = self.embed_bank["embed1"].repeat(batch_size, 1, 1)  # (b, 4, 2048)
-        # embed2 = self.embed_bank["embed2"].repeat(batch_size, 1, 1)  # (b, 11, 2048)
-        # att1 = self.embed_bank["att1"].repeat(batch_size, 1)
-        # att2 = self.embed_bank["att2"].repeat(batch_size, 1)
-        # true_labels = None
-        ##################################
-        # pr_output = self.language_tokenizer(
-        #     prompts, return_tensors="pt", add_special_tokens=False,padding=True
-        # ).to(self.device)
-        # att_pr = pr_output.attention_mask
-        # with torch.no_grad():
-        #     pr_output = self.language_model.model.embed_tokens(
-        #         pr_output.input_ids
-        #     )
-        ##################################
-        # prompt_length = embed1.shape[1] + speech_output.shape[1] +  embed2.shape[1]
+        # print(f"audio after hubert and adapter:\t{speech_output.shape}")
+        # print(f"audio mask:\t{mask.shape}")
         
         if transcriptions is not None:
             
             ###########处理prompt_embed ###############################################################################
-            #去除speech padding
+                #去除speech padding
             audio_no_padding = self.remove_padding(speech_output,mask)
-            print(f"audio with no padding:\t{len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
+            # print(f"audio with no padding:\t{len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
             
             _labels = self.language_tokenizer(
                 transcriptions,
@@ -231,55 +212,55 @@ class SLAM_ASR(nn.Module):
             with torch.no_grad():
                 labels_embeds = self.language_model.rwkv.get_input_embeddings()(_labels.input_ids)
             att3 = _labels.attention_mask
-            print(f"embed transcription:\t{labels_embeds.shape}")
-            print(f"transcription mask:\t{att3.shape}")
+            # print(f"embed transcription:\t{labels_embeds.shape}")
+            # print(f"transcription mask:\t{att3.shape}")
             
-            #拼接speech和label
+                #拼接speech和label
             audio_label = self.concatenate_audio_transcription(audio_no_padding , labels_embeds)
-            print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
+            # print(f"concatenated inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
         
-            #对拼接后的内容进行padding
+                #对拼接后的内容进行padding
             max_seq = max([len(x) for x in audio_label])
             for i, x in enumerate(audio_label):
                 times = max_seq - len(x)
                 for _ in range(times):
                     x = torch.cat((x,x[len(x)-1].unsqueeze(0)))
                 audio_label[i] = x
-            print(f"padded inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
+            # print(f"padded inputs:\t{len(audio_label)}-{[len(x) for x in audio_label]}")
             
-            #转换成tensor
+                #转换成tensor
             audio_label = torch.stack(audio_label)
-            print(f"padded inputs tensor:\t{audio_label.shape}")
+            # print(f"padded inputs tensor:\t{audio_label.shape}")
             prompt_embed = audio_label
-            print()
+            # print()
             
             #####处理prompt_mask ##################################################
             
-            # 剔除audio mask的0
+                # 剔除audio mask的0
             mask_no_zero = []
             for mask_i in mask:
                 mask_i_no_zero = mask_i[mask_i != 0]
                 mask_no_zero.append(mask_i_no_zero)
-            print(f"audio mask with no 0:\t{len(mask_no_zero)}-{[len(x) for x in mask_no_zero]}")
+            # print(f"audio mask with no 0:\t{len(mask_no_zero)}-{[len(x) for x in mask_no_zero]}")
             
-            # 将audio mask和transcription mask 拼接
+                # 将audio mask和transcription mask 拼接
             mask_concatenate = self.concatenate_audio_transcription(mask_no_zero, att3)
-            print(f"audio mask + transcription mask:\t{len(mask_concatenate)}-{[len(x) for x in mask_concatenate]}")
+            # print(f"audio mask + transcription mask:\t{len(mask_concatenate)}-{[len(x) for x in mask_concatenate]}")
             
-            #向mask 填充0
+                #向mask 填充0
             max_mask = max([len(x) for x in mask_concatenate])
             for i, x in enumerate(mask_concatenate):
                 times = max_mask - len(x)
                 for _ in range(times):
                     x = torch.cat((x,torch.tensor([0]).to(self.device)))
                 mask_concatenate[i] = x
-            print(f"padded inputs:\t{len(mask_concatenate)}-{[len(x) for x in mask_concatenate]}")
+            # print(f"padded inputs:\t{len(mask_concatenate)}-{[len(x) for x in mask_concatenate]}")
             
-            #转换成tensor
+                #转换成tensor
             mask_concatenate = torch.stack(mask_concatenate)
-            print(f"padded attention mask tensor:\t{mask_concatenate.shape}")
+            # print(f"padded attention mask tensor:\t{mask_concatenate.shape}")
             prompt_mask = mask_concatenate
-            print()
+            # print()
             
             #########处理loss mask #####################################################
             import torch.nn.functional as F
@@ -293,13 +274,14 @@ class SLAM_ASR(nn.Module):
             loss_mask = torch.stack(loss_mask)
             loss_mask = prompt_mask - loss_mask
             
-            print(f"loss mask:\t{loss_mask.shape}")
+            # print(f"loss mask:\t{loss_mask.shape}")
             
             #########处理true_labels ###################################################
-            print()
+            # print()
             true_labels = _labels.input_ids
-            print(f"labels:\t{true_labels.shape}")
+            # print(f"labels:\t{true_labels.shape}")
             
+                #在ture label左侧填充audio 长度的-100， 同时在右侧填充-100使batch对齐
             padded_labels = []
             for i,t in enumerate(true_labels):
                 back_padding = max_mask - t.shape[0] - audio_no_padding[i].shape[0]
@@ -323,17 +305,12 @@ class SLAM_ASR(nn.Module):
                 padded_labels.append(t)
             
             padded_labels = torch.stack(padded_labels)
-            
-            print(f"true_labels:\t{padded_labels.shape}")
+            # print(f"true_labels:\t{padded_labels.shape}")
             true_labels = padded_labels
         else:
             prompt_embed = speech_output
             prompt_mask = mask
             true_labels = None
-            # prompt_embed = torch.cat(
-            #     [embed1, speech_output, embed2], dim=1
-            # )  # (b, 4+audio+11, 2048)
-            # prompt_mask = torch.cat([att1, mask, att2], dim=1)
         return prompt_embed, prompt_mask, true_labels
 
     def forward(self, audios: List[float], transcriptions: List[str] = None):
@@ -343,10 +320,10 @@ class SLAM_ASR(nn.Module):
         )
         # run the prompt through the language model
 
-        print()
-        print(f"prompt_embed:{prompt_embed.shape}")
-        print(f"attention_mask:{prompt_mask.shape}")
-        print(f"true_labels:{true_labels.shape}")
+        # print()
+        # print(f"prompt_embed:{prompt_embed.shape}")
+        # print(f"attention_mask:{prompt_mask.shape}")
+        # print(f"true_labels:{true_labels.shape}")
         
         outputs = self.language_model(
             inputs_embeds=prompt_embed,
@@ -354,10 +331,9 @@ class SLAM_ASR(nn.Module):
             labels=true_labels,
         )  # CausalLMOutputWithPast
         
-        print(f"logits:\t{outputs['logits'].shape}")
+        print(f"outputs:{outputs['loss']}")
+        # print(f"logits:\t{outputs['logits'].shape}")
         
-        exit(0)
-        # print(f"true_labels:{true_labels[0]}-outputs:{true_labels[0]}",end="\r")
         return outputs
 
     def generate(self, audios: List[float], stopping_criteria=None):
