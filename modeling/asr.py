@@ -325,7 +325,7 @@ class SLAM_ASR(nn.Module):
             padded_labels = torch.stack(padded_labels)
             
             print(f"true_labels:\t{padded_labels.shape}")
-                       
+            true_labels = padded_labels
         else:
             prompt_embed = speech_output
             prompt_mask = mask
