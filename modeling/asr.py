@@ -343,6 +343,11 @@ class SLAM_ASR(nn.Module):
         )
         # run the prompt through the language model
 
+        print()
+        print(f"prompt_embed:{prompt_embed.shape}")
+        print(f"attention_mask:{prompt_mask.shape}")
+        print(f"true_labels:{true_labels.shape}")
+        
         outputs = self.language_model(
             inputs_embeds=prompt_embed,
             attention_mask=prompt_mask.bool(),
