@@ -300,6 +300,7 @@ class SLAM_ASR(nn.Module):
             true_labels = _labels.input_ids
             print(f"labels:\t{true_labels.shape}")
             
+            exit(0)
             batch_size = speech_output.shape[0]
             true_labels = torch.cat(
                 [
