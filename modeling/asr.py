@@ -300,6 +300,31 @@ class SLAM_ASR(nn.Module):
             true_labels = _labels.input_ids
             print(f"labels:\t{true_labels.shape}")
             
+            padded_labels = []
+            for i,t in enumerate(true_labels):
+                back_padding = max_mask - t.shape[0] - audio_no_padding[i].shape[0]
+                t = torch.cat(
+                    [
+                        torch.full(
+                            (audio_no_padding[i].shape[0], ),
+                            -100,
+                            dtype=torch.long,
+                            device=self.device,
+                        ),
+                        t,
+                        torch.full(
+                            (back_padding, ),
+                            -100,
+                            dtype=torch.long,
+                            device=self.device,
+                        ),
+                    ]
+                )
+                padded_labels.append(t)
+            
+            padded_labels = torch.stack(padded_labels)
+            
+            print(f"true_labels:\t{padded_labels.shape}")
             exit(0)
             batch_size = speech_output.shape[0]
             true_labels = torch.cat(
