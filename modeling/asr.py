@@ -47,7 +47,7 @@ class SLAM_ASR(nn.Module):
 
         """
 
-        self.language_tokenizer = AutoTokenizer.from_pretrained(language_model_id,trust_remote_code=True,pad_token="<s>")
+        self.language_tokenizer = AutoTokenizer.from_pretrained(language_model_id,trust_remote_code=True)
         self.language_model = AutoModelForCausalLM.from_pretrained(
             language_model_id,
             trust_remote_code=True,
@@ -262,17 +262,17 @@ class SLAM_ASR(nn.Module):
             prompt_mask = mask_concatenate
             # print()
             
-            #########处理loss mask #####################################################
-            import torch.nn.functional as F
-            loss_mask = []
+            # #########处理loss mask #####################################################
+            # import torch.nn.functional as F
+            # loss_mask = []
             
-            for t in mask_no_zero:
-                pad_len = max_mask - len(t)
-                pad = F.pad(t, (0, pad_len), "constant", 0)
-                loss_mask.append(pad)
+            # for t in mask_no_zero:
+            #     pad_len = max_mask - len(t)
+            #     pad = F.pad(t, (0, pad_len), "constant", 0)
+            #     loss_mask.append(pad)
             
-            loss_mask = torch.stack(loss_mask)
-            loss_mask = prompt_mask - loss_mask
+            # loss_mask = torch.stack(loss_mask)
+            # loss_mask = prompt_mask - loss_mask
             
             # print(f"loss mask:\t{loss_mask.shape}")
             
@@ -331,7 +331,7 @@ class SLAM_ASR(nn.Module):
             labels=true_labels,
         )  # CausalLMOutputWithPast
         
-        print(f"outputs:{outputs['loss']}")
+        # print(f"outputs:{outputs['loss']}")
         # print(f"logits:\t{outputs['logits'].shape}")
         
         return outputs
