@@ -194,14 +194,14 @@ class SLAM_ASR(nn.Module):
         speech_output, mask = self.speech_encoder(audios)
         print(f"audio after hubert and adapter:\t{speech_output.shape}")
         print(f"audio mask:\t{mask.shape}")
+        
         # batch_size = speech_output.shape[0]
         # get the prompt embeddings
         # embed1 = self.embed_bank["embed1"].repeat(batch_size, 1, 1)  # (b, 4, 2048)
         # embed2 = self.embed_bank["embed2"].repeat(batch_size, 1, 1)  # (b, 11, 2048)
         # att1 = self.embed_bank["att1"].repeat(batch_size, 1)
         # att2 = self.embed_bank["att2"].repeat(batch_size, 1)
-
-        true_labels = None
+        # true_labels = None
         ##################################
         # pr_output = self.language_tokenizer(
         #     prompts, return_tensors="pt", add_special_tokens=False,padding=True
@@ -216,7 +216,7 @@ class SLAM_ASR(nn.Module):
         
         if transcriptions is not None:
             
-            ###########处理prompt_embed###############################################################################
+            ###########处理prompt_embed ###############################################################################
             #去除speech padding
             audio_no_padding = self.remove_padding(speech_output,mask)
             print(f"audio with no padding:\t{len(audio_no_padding)}-{[len(x) for x in audio_no_padding]}")
@@ -253,7 +253,7 @@ class SLAM_ASR(nn.Module):
             prompt_embed = audio_label
             print()
             
-            #####处理prompt_mask##################################################
+            #####处理prompt_mask ##################################################
             
             # 剔除audio mask的0
             mask_no_zero = []
@@ -277,11 +277,11 @@ class SLAM_ASR(nn.Module):
             
             #转换成tensor
             mask_concatenate = torch.stack(mask_concatenate)
-            print(f"padded mask tensor:\t{mask_concatenate.shape}")
+            print(f"padded attention mask tensor:\t{mask_concatenate.shape}")
             prompt_mask = mask_concatenate
             print()
             
-            #########处理loss mask#####################################################
+            #########处理loss mask #####################################################
             import torch.nn.functional as F
             loss_mask = []
             
@@ -295,21 +295,12 @@ class SLAM_ASR(nn.Module):
             
             print(f"loss mask:\t{loss_mask.shape}")
             
-            #########处理true_labels###################################################
+            #########处理true_labels ###################################################
             print()
             true_labels = _labels.input_ids
-            print(f"labels:\t{true_labels}")
+            print(f"labels:\t{true_labels.shape}")
             
-            
-            exit(0)
-            
-            prompt_embed = torch.cat(
-                [speech_output, labels_embeds], dim=1
-            )  # (b, 4+audio+11+seq_len, 2048)
-            prompt_mask = torch.cat([mask, att3], dim=1)
-
-            true_labels = _labels.input_ids
-            # attach "prompt_length" * -100 to the start of the true_labels
+            batch_size = speech_output.shape[0]
             true_labels = torch.cat(
                 [
                     torch.full(
@@ -322,13 +313,15 @@ class SLAM_ASR(nn.Module):
                 ],
                 dim=1,
             )
+            
         else:
-            exit(0)
+            prompt_embed = speech_output
+            prompt_mask = mask
+            true_labels = None
             # prompt_embed = torch.cat(
             #     [embed1, speech_output, embed2], dim=1
             # )  # (b, 4+audio+11, 2048)
             # prompt_mask = torch.cat([att1, mask, att2], dim=1)
-            true_labels = None
         return prompt_embed, prompt_mask, true_labels
 
     def forward(self, audios: List[float], transcriptions: List[str] = None):
@@ -346,6 +339,9 @@ class SLAM_ASR(nn.Module):
             labels=true_labels,
         )  # CausalLMOutputWithPast
         
+        print(f"logits:\t{outputs['logits'].shape}")
+        
+        exit(0)
         # print(f"true_labels:{true_labels[0]}-outputs:{true_labels[0]}",end="\r")
         return outputs
 
