@@ -304,7 +304,7 @@ class SLAM_ASR(nn.Module):
             true_labels = torch.cat(
                 [
                     torch.full(
-                        (batch_size),
+                        (batch_size, ),
                         -100,
                         dtype=torch.long,
                         device=self.device,
@@ -325,8 +325,6 @@ class SLAM_ASR(nn.Module):
         return prompt_embed, prompt_mask, true_labels
 
     def forward(self, audios: List[float], transcriptions: List[str] = None):
-        
-        
         
         prompt_embed, prompt_mask, true_labels = self._prepare_input_embeds(
             audios, transcriptions
