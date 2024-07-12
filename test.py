@@ -17,6 +17,7 @@ model = SLAM_ASR(
 # data = load_from_disk("temp_datasets/en-final").select(range(3))
 
 # output = model([i["speech"] for i in data], [i["text"].lower() for i in data])
+count = 0
 for _, module in model.language_model.named_modules():
     for name, param in module.named_parameters():
         print(f"layer:{name}")
@@ -25,4 +26,6 @@ for _, module in model.language_model.named_modules():
             param.requires_grad = False
         else:
             print("yesy")
+            count += 1
             param.requires_grad = True
+print(count)
