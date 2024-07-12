@@ -151,7 +151,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     """
     LANG = "zh-CN"
     # LANG = "en"
-    temp_dataset_file = "temp_datasets/rwkv/"+LANG+"-final"
+    # temp_dataset_file = "temp_datasets/rwkv/"+LANG+"-final"
+    temp_dataset_file = "temp_datasets/en-final"
 
     def format_dataset(dataset):
         def map_to_array(batch):
