@@ -17,12 +17,12 @@ model = SLAM_ASR(
 # data = load_from_disk("temp_datasets/en-final").select(range(3))
 
 # output = model([i["speech"] for i in data], [i["text"].lower() for i in data])
-
-for name, param in model.language_model.named_parameters():
-    print(f"layer:{name}")
-    
-    if('state' not in name.lower()):
-        param.requires_grad = False
-    else:
-        print("yesy")
-        param.requires_grad = True
+for _, module in model.language_model.named_modules():
+    for name, param in module.named_parameters():
+        print(f"layer:{name}")
+        
+        if('state' not in name.lower()):
+            param.requires_grad = False
+        else:
+            print("yesy")
+            param.requires_grad = True
