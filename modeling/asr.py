@@ -278,7 +278,7 @@ class SLAM_ASR(nn.Module):
             #转换成tensor
             mask_concatenate = torch.stack(mask_concatenate)
             print(f"padded mask tensor:\t{mask_concatenate.shape}")
-            prompt_mask = audio_label
+            prompt_mask = mask_concatenate
             print()
             
             #########处理loss mask#####################################################
