@@ -297,7 +297,7 @@ class SLAM_ASR(nn.Module):
             for i, x in enumerate(mask_concatenate):
                 times = max_mask - len(x)
                 for _ in range(times):
-                    x = torch.cat((x,torch.tensor([0])))
+                    x = torch.cat((x,torch.tensor([0]).to(self.device)))
                 mask_concatenate[i] = x
             print(f"padded inputs:\t{len(mask_concatenate)}-{[len(x) for x in mask_concatenate]}")
             
