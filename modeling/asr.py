@@ -85,7 +85,7 @@ class SLAM_ASR(nn.Module):
         # print(self.language_model)
 
 
-        self.set_gradient(train_mode)
+        self.set_gradient(train_mode,'state')
         
 
         
@@ -140,7 +140,7 @@ class SLAM_ASR(nn.Module):
             f"    {self.prompt_part1}        {inputs_embeds1.shape}\n    {self.prompt_part2}        {inputs_embeds2.shape}"
         )
 
-    def set_gradient(self, train_mode):
+    def set_gradient(self, train_mode,tuning):
         assert train_mode in ["adapter", "full"]
 
         # call set_gradient for speech encoder
@@ -151,8 +151,14 @@ class SLAM_ASR(nn.Module):
             for name, param in self.language_model.named_parameters():
                 # print(f"layer:{name}")
                 
-                if('lora' not in name.lower()):
+                if(tuning == 'lora' and 'lora' not in name.lower()):
                     param.requires_grad = False
+                elif(tuning == 'state'):
+                    if('state' not in name.lower()):
+                        param.requires_grad = False
+                    else:
+                        param.requires_grad = True
+                
             
         # now list all parameters that require grad
         print("Parameters that require grad:")
